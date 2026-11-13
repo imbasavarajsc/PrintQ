@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrintQ — Smart Campus Print Queue & Token System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    @keyframes pulse-border {
+      0%, 100% { border-color: rgba(245, 158, 11, 0.9); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+      50% { border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+    }
+    .urgent-card { animation: pulse-border 2s infinite; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Top Navigation & Judge Verification Banner -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-extrabold text-xl shadow-lg shadow-indigo-500/30">PQ</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-lg tracking-tight">PrintQ</h1>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">PS-24 MVP</span>
+          </div>
+          <p class="text-xs text-slate-400">Campus Print Queue & Live Wait-Time Estimator</p>
+        </div>
+      </div>
+
+      <!-- Live Now Serving Ticker -->
+      <div class="flex items-center gap-4 bg-slate-950 border border-slate-800 px-4 py-2 rounded-xl">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Now Printing:</span>
+          <span id="nowServingToken" class="mono font-bold text-emerald-400 text-sm">#PQ-101</span>
+        </div>
+        <div class="h-4 w-px bg-slate-800"></div>
+        <div class="text-xs text-slate-400">
+          Active Queue: <span id="activeQueueCount" class="font-bold text-white">3 jobs</span>
+        </div>
+        <button onclick="resetDemoData()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg transition" title="Reset sample data for judges">
+          ↺ Reset Demo
+        </button>
+      </div>
+    </div>
+
+    <!-- Judge 3-Step Quick Guide Bar -->
+    <div class="bg-indigo-950/60 border-t border-indigo-900/60 px-4 py-1.5">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between text-xs text-indigo-200 gap-2">
+        <span class="font-semibold text-indigo-300">🎯 JUDGE VERIFICATION PATH:</span>
+        <div class="flex flex-wrap gap-4">
+          <span><strong>Step 01:</strong> Submit job on Left Panel ➔ View Token & Wait Estimate</span>
+          <span><strong>Step 02:</strong> Change Job Status & Reorder (↑/↓) on Right Panel</span>
+          <span><strong>Step 03:</strong> Click <strong>"⚡ Urgent"</strong> on any queued job ➔ Confirm Modal</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Split View: Left = Student Portal | Right = Shop Queue -->
+  <main class="max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
+    
+    <!-- LEFT COLUMN: STUDENT SUBMISSION & TOKEN RECEIPT (5 cols) -->
+    <section class="lg:col-span-5 flex flex-col gap-5">
+      
+      <!-- Visible Assumptions Card (MVP Core Requirement #2) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+            <span>⚙️</span> Visible Estimation Assumptions (Live Formula)
+          </h2>
+          <span class="text-[11px] text-slate-400 mono">Editable</span>
+        </div>
+        <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+          Wait time = <strong>Queue Backlog Ahead</strong> + <strong>Job Print Time</strong> + <strong>Handling Buffer</strong>.
+        </p>
+        <div class="grid grid-cols-3 gap-2 text-center bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
+          <div>
+            <label class="text-[10px] text-slate-400 block">B&W Speed</label>
+            <div class="flex items-center justify-center gap-1 mt-0.5">
+              <input id="assumpBW" type="number" value="4" min="1" max="30" onchange="recalculateAll()" class="w-12 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center mono text-xs font-bold text-white">
+              <span class="text-[11px] text-slate-400">s/pg</span>
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block">Colour Speed</label>
+            <div class="flex items-center justify-center gap-1 mt-0.5">
+              <input id="assumpColor" type="number" value="12" min="2" max="60" onchange="recalculateAll()" class="w-12 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center mono text-xs font-bold text-indigo-300">
+              <span class="text-[11px] text-slate-400">s/pg</span>
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block">Setup/Job</label>
+            <div class="flex items-center justify-center gap-1 mt-0.5">
+              <input id="assumpSetup" type="number" value="30" min="5" max="120" onchange="recalculateAll()" class="w-12 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center mono text-xs font-bold text-emerald-300">
+              <span class="text-[11px] text-slate-400">sec</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Print Submission Form -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Step 01 • Student View</span>
+            <h2 class="text-lg font-bold text-white">Submit Print Job</h2>
+          </div>
+          <button type="button" onclick="fillQuickSample()" class="text-xs bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-lg font-medium transition">
+            ✨ Auto-Fill Sample
+          </button>
+        </div>
+
+        <form id="printForm" onsubmit="handleJobSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Student Name / Fictional Roll No.</label>
+            <input id="studentName" type="text" required placeholder="e.g., Aarav Sharma (NIE-CS-042)" value="Riya Verma (NIE-AIML-019)"
+              class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Document Name (.pdf / .docx) *</label>
+            <input id="docName" type="text" required placeholder="e.g., Lab_Record_Final.pdf" value="Compiler_Design_Lab_Manual.pdf"
+              class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Pages per Copy *</label>
+              <input id="pageCount" type="number" min="1" max="500" required value="12" oninput="updateLivePreview()"
+                class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white mono" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Number of Copies *</label>
+              <input id="copyCount" type="number" min="1" max="100" required value="2" oninput="updateLivePreview()"
+                class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white mono" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">Colour Preference *</label>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="cursor-pointer">
+                <input type="radio" name="colorPref" value="BW" checked onchange="updateLivePreview()" class="peer hidden" />
+                <div class="border border-slate-800 peer-checked:border-indigo-500 peer-checked:bg-indigo-600/15 bg-slate-950 rounded-xl p-3 text-center transition">
+                  <div class="font-semibold text-sm text-white">⚫ Black & White</div>
+                  <div class="text-[11px] text-slate-400">₹2 / page • Fast</div>
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="colorPref" value="COLOUR" onchange="updateLivePreview()" class="peer hidden" />
+                <div class="border border-slate-800 peer-checked:border-indigo-500 peer-checked:bg-indigo-600/15 bg-slate-950 rounded-xl p-3 text-center transition">
+                  <div class="font-semibold text-sm text-white">🌈 Full Colour</div>
+                  <div class="text-[11px] text-slate-400">₹10 / page • High-Res</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Pre-Submission Live Estimate Bar -->
+          <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-3 flex items-center justify-between text-xs">
+            <div>
+              <span class="text-slate-400 block">Est. Wait Time (inc. queue):</span>
+              <span id="liveWaitPreview" class="font-bold text-amber-400 text-sm mono">~4 mins 10 sec</span>
+            </div>
+            <div class="text-right">
+              <span class="text-slate-400 block">Total Pages & Cost:</span>
+              <span id="liveCostPreview" class="font-bold text-emerald-400 text-sm mono">24 pgs • ₹48</span>
+            </div>
+          </div>
+
+          <button type="submit"
+            class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2">
+            <span>🖨️ Submit Print Job & Generate Token</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Generated Token Receipt Card (Highlighted upon Submit) -->
+      <div id="tokenReceiptCard" class="bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-900 border-2 border-indigo-500/60 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+              ✓ Active Token Receipt
+            </span>
+            <h3 id="receiptDocName" class="font-bold text-base text-white mt-1">OS_MiniProject_Report.pdf</h3>
+            <p id="receiptStudent" class="text-xs text-slate-400">Submitted by Karthik Rao (NIE-CS-088)</p>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Your Token</span>
+            <span id="receiptToken" class="mono text-2xl font-extrabold text-indigo-400">#PQ-103</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center bg-slate-950/80 rounded-xl p-3 border border-slate-800 mb-3">
+          <div>
+            <span class="text-[10px] text-slate-400 block uppercase">Est. Wait</span>
+            <span id="receiptWait" class="mono font-bold text-sm text-amber-400">3m 20s</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 block uppercase">Pickup By</span>
+            <span id="receiptPickup" class="mono font-bold text-sm text-white">3:14 PM</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 block uppercase">Status</span>
+            <span id="receiptStatus" class="font-bold text-xs text-sky-400">Queued (#3)</span>
+          </div>
+        </div>
+
+        <p id="receiptFormulaBreakdown" class="text-[11px] text-slate-400 mono bg-slate-950/60 px-3 py-2 rounded-lg border border-slate-800/60">
+          Math: 2m 10s backlog ahead + 1m 10s job time (10 pgs × 1 copy B&W + 30s setup)
+        </p>
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN: SHOP OWNER LIVE QUEUE & CONTROLS (7 cols) -->
+    <section class="lg:col-span-7 flex flex-col gap-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex-1 flex flex-col">
+        
+        <!-- Queue Header & Filters -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+          <div>
+            <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Step 02 & 03 • Shop Operator View</span>
+            <h2 class="text-lg font-bold text-white">Live Print Shop Queue</h2>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select id="filterStatus" onchange="renderQueue()" class="bg-slate-950 border border-slate-800 text-xs rounded-xl px-3 py-2 text-slate-200">
+              <option value="ALL">All Jobs</option>
+              <option value="ACTIVE">Active Only (Queued + Printing)</option>
+              <option value="READY">Ready for Pickup</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Shop Queue List -->
+        <div id="queueContainer" class="space-y-3 mt-4 flex-1">
+          <!-- Dynamically populated by JS -->
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- STEP 03: URGENT CONFIRMATION MODAL -->
+  <div id="urgentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border-2 border-amber-500/70 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">⚡</div>
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Step 03 Verification • Priority Override</span>
+          <h3 class="text-lg font-bold text-white">Mark Job as Urgent?</h3>
+        </div>
+      </div>
+
+      <p class="text-sm text-slate-300 leading-relaxed mb-4">
+        You are promoting <strong id="modalTokenName" class="text-amber-300 mono">#PQ-103</strong> (<span id="modalDocName" class="text-white">Document.pdf</span>) to the <strong>top of the waiting queue</strong>.
+      </p>
+
+      <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 mb-4 text-xs space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Queue Impact:</span>
+          <span id="modalImpactText" class="text-amber-400 font-semibold">Moves to #1 waiting slot</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">New Est. Wait Time:</span>
+          <span id="modalNewWait" class="text-emerald-400 font-bold mono">~1 min 15 sec</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Priority Express Reason:</span>
+          <span class="text-slate-200">Exam / Lab Viva Submission</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3">
+        <button onclick="closeUrgentModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition">
+          Cancel
+        </button>
+        <button onclick="confirmMarkUrgent()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/25 transition">
+          ⚡ Confirm Urgent Priority
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 border border-indigo-500/60 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-medium hidden items-center gap-2 z-50">
+    <span id="toastMsg">Action completed</span>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'PRINTQ_PS24_JOBS_V1';
+    let selectedUrgentJobId = null;
+    let lastHighlightedJobId = 'job-3';
+
+    const DEFAULT_JOBS = [
+      {
+        id: 'job-1',
+        token: '#PQ-101',
+        student: 'Aditya Nair (NIE-ISE-014)',
+        docName: 'DBMS_Normalized_Schema_Diagram.pdf',
+        pages: 8,
+        copies: 1,
+        color: 'COLOUR',
+        status: 'Printing',
+        urgent: false,
+        createdAt: Date.now() - 420000
+      },
+      {
+        id: 'job-2',
+        token: '#PQ-102',
+        student: 'Sneha Kulkarni (NIE-CS-061)',
+        docName: 'ADA_Assignment_Graph_Theory.pdf',
+        pages: 15,
+        copies: 2,
+        color: 'BW',
+        status: 'Queued',
+        urgent: false,
+        createdAt: Date.now() - 300000
+      },
+      {
+        id: 'job-3',
+        token: '#PQ-103',
+        student: 'Karthik Rao (NIE-CS-088)',
+        docName: 'OS_MiniProject_Report.pdf',
+        pages: 10,
+        copies: 1,
+        color: 'BW',
+        status: 'Queued',
+        urgent: false,
+        createdAt: Date.now() - 180000
+      },
+      {
+        id: 'job-4',
+        token: '#PQ-100',
+        student: 'Meera Joshi (NIE-ECE-027)',
+        docName: 'VLSI_Lab_Observation_Sheet.pdf',
+        pages: 6,
+        copies: 1,
+        color: 'BW',
+        status: 'Ready',
+        urgent: false,
+        createdAt: Date.now() - 900000
+      }
+    ];
+
+    let jobs = loadJobs();
+
+    function loadJobs() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try { return JSON.parse(saved); } catch (e) {}
+      }
+      return JSON.parse(JSON.stringify(DEFAULT_JOBS));
+    }
+
+    function saveJobs() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+    }
+
+    function resetDemoData() {
+      jobs = JSON.parse(JSON.stringify(DEFAULT_JOBS));
+      lastHighlightedJobId = 'job-3';
+      saveJobs();
+      recalculateAll();
+      showToast('↺ Demo data reset to initial state!');
+    }
+
+    function getAssumptions() {
+      const bw = Math.max(1, parseInt(document.getElementById('assumpBW').value) || 4);
+      const color = Math.max(1, parseInt(document.getElementById('assumpColor').value) || 12);
+      const setup = Math.max(5, parseInt(document.getElementById('assumpSetup').value) || 30);
+      return { bw, color, setup };
+    }
+
+    function calcJobDurationSec(job) {
+      const { bw, color, setup } = getAssumptions();
+      const perPage = job.color === 'COLOUR' ? color : bw;
+      const totalPages = job.pages * job.copies;
+      return (totalPages * perPage) + setup;
+    }
+
+    function calcJobCost(pages, copies, color) {
+      const rate = color === 'COLOUR' ? 10 : 2;
+      return pages * copies * rate;
+    }
+
+    function formatDuration(sec) {
+      if (sec <= 0) return '0s (Ready)';
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      if (m === 0) return `${s}s`;
+      return s > 0 ? `${m}m ${s}s` : `${m}m`;
+    }
+
+    function formatPickupTime(waitSeconds) {
+      const d = new Date(Date.now() + waitSeconds * 1000);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Calculate backlog & cumulative wait time for every job in queue order
+    function computeQueueMetrics() {
+      let cumulativeBacklogSec = 0;
+      return jobs.map((job, idx) => {
+        const ownDurationSec = calcJobDurationSec(job);
+        let backlogAheadSec = 0;
+        let totalWaitSec = 0;
+
+        if (job.status === 'Printing') {
+          // Assume printing job has ~60% remaining
+          const remaining = Math.round(ownDurationSec * 0.6);
+          backlogAheadSec = 0;
+          totalWaitSec = remaining;
+          cumulativeBacklogSec += remaining;
+        } else if (job.status === 'Queued') {
+          backlogAheadSec = cumulativeBacklogSec;
+          totalWaitSec = backlogAheadSec + ownDurationSec;
+          cumulativeBacklogSec += ownDurationSec;
+        } else {
+          totalWaitSec = 0;
+        }
+
+        return {
+          ...job,
+          ownDurationSec,
+          backlogAheadSec,
+          totalWaitSec,
+          pickupTimeStr: formatPickupTime(totalWaitSec),
+          cost: calcJobCost(job.pages, job.copies, job.color)
+        };
+      });
+    }
+
+    function updateLivePreview() {
+      const pages = Math.max(1, parseInt(document.getElementById('pageCount').value) || 1);
+      const copies = Math.max(1, parseInt(document.getElementById('copyCount').value) || 1);
+      const color = document.querySelector('input[name="colorPref"]:checked').value;
+
+      const enriched = computeQueueMetrics();
+      const activeBacklog = enriched
+        .filter(j => j.status === 'Printing' || j.status === 'Queued')
+        .reduce((acc, j) => acc + (j.status === 'Printing' ? j.totalWaitSec : j.ownDurationSec), 0);
+
+      const newJobSec = calcJobDurationSec({ pages, copies, color });
+      const totalWait = activeBacklog + newJobSec;
+      const totalPages = pages * copies;
+      const cost = calcJobCost(pages, copies, color);
+
+      document.getElementById('liveWaitPreview').textContent = `~${formatDuration(totalWait)} (Pickup ${formatPickupTime(totalWait)})`;
+      document.getElementById('liveCostPreview').textContent = `${totalPages} pgs • ₹${cost}`;
+    }
+
+    function handleJobSubmit(e) {
+      e.preventDefault();
+      const student = document.getElementById('studentName').value.trim() || 'Student User';
+      const docName = document.getElementById('docName').value.trim() || 'Untitled_Document.pdf';
+      const pages = Math.max(1, parseInt(document.getElementById('pageCount').value) || 1);
+      const copies = Math.max(1, parseInt(document.getElementById('copyCount').value) || 1);
+      const color = document.querySelector('input[name="colorPref"]:checked').value;
+
+      const nextNum = 101 + jobs.length;
+      const newJob = {
+        id: 'job-' + Date.now(),
+        token: `#PQ-${nextNum}`,
+        student,
+        docName,
+        pages,
+        copies,
+        color,
+        status: 'Queued',
+        urgent: false,
+        createdAt: Date.now()
+      };
+
+      // Insert before Ready/Completed jobs
+      const firstDoneIdx = jobs.findIndex(j => j.status === 'Ready' || j.status === 'Completed');
+      if (firstDoneIdx === -1) {
+        jobs.push(newJob);
+      } else {
+        jobs.splice(firstDoneIdx, 0, newJob);
+      }
+
+      lastHighlightedJobId = newJob.id;
+      saveJobs();
+      recalculateAll();
+      showToast(`🎉 Job Submitted! Token ${newJob.token} generated.`);
+    }
+
+    function updateReceiptCard() {
+      const enriched = computeQueueMetrics();
+      const target = enriched.find(j => j.id === lastHighlightedJobId) || enriched[0];
+      if (!target) return;
+
+      const activeList = enriched.filter(j => j.status === 'Printing' || j.status === 'Queued');
+      const posIndex = activeList.findIndex(j => j.id === target.id);
+      const posText = posIndex >= 0 ? `${target.status} (#${posIndex + 1} in line)` : target.status;
+
+      document.getElementById('receiptDocName').textContent = target.docName;
+      document.getElementById('receiptStudent').textContent = `Submitted by ${target.student} • ${target.pages} pgs × ${target.copies} (${target.color === 'COLOUR' ? 'Colour' : 'B&W'})`;
+      document.getElementById('receiptToken').textContent = target.token;
+      document.getElementById('receiptWait').textContent = formatDuration(target.totalWaitSec);
+      document.getElementById('receiptPickup').textContent = target.pickupTimeStr;
+      document.getElementById('receiptStatus').textContent = (target.urgent ? '⚡ URGENT • ' : '') + posText;
+      document.getElementById('receiptFormulaBreakdown').textContent =
+        `Math: ${formatDuration(target.backlogAheadSec)} backlog ahead + ${formatDuration(target.ownDurationSec)} print time (${target.pages * target.copies} total pgs + setup) = ${formatDuration(target.totalWaitSec)}`;
+    }
+
+    // STEP 02: Change Job Status
+    function changeJobStatus(jobId, newStatus) {
+      const job = jobs.find(j => j.id === jobId);
+      if (!job) return;
+      job.status = newStatus;
+      lastHighlightedJobId = jobId;
+      saveJobs();
+      recalculateAll();
+      showToast(`✅ ${job.token} status updated to "${newStatus}"`);
+    }
+
+    // STEP 02: Reorder Queue Controls (Up / Down)
+    function moveJob(jobId, direction) {
+      const idx = jobs.findIndex(j => j.id === jobId);
+      if (idx === -1) return;
+      const targetIdx = idx + direction;
+      if (targetIdx < 0 || targetIdx >= jobs.length) return;
+
+      const temp = jobs[idx];
+      jobs[idx] = jobs[targetIdx];
+      jobs[targetIdx] = temp;
+
+      lastHighlightedJobId = jobId;
+      saveJobs();
+      recalculateAll();
+      showToast(`↕️ Reordered ${temp.token} in shop queue`);
+    }
+
+    // STEP 03: Open Urgent Confirmation Modal
+    function openUrgentModal(jobId) {
+      const enriched = computeQueueMetrics();
+      const job = enriched.find(j => j.id === jobId);
+      if (!job) return;
+
+      selectedUrgentJobId = jobId;
+      document.getElementById('modalTokenName').textContent = job.token;
+      document.getElementById('modalDocName').textContent = job.docName;
+
+      // Calculate wait if promoted right after any currently Printing job
+      const printingJob = enriched.find(j => j.status === 'Printing');
+      const waitIfUrgent = (printingJob ? printingJob.totalWaitSec : 0) + job.ownDurationSec;
+
+      document.getElementById('modalNewWait').textContent = `~${formatDuration(waitIfUrgent)} (Pickup ${formatPickupTime(waitIfUrgent)})`;
+      const modal = document.getElementById('urgentModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeUrgentModal() {
+      selectedUrgentJobId = null;
+      const modal = document.getElementById('urgentModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmMarkUrgent() {
+      if (!selectedUrgentJobId) return;
+      const idx = jobs.findIndex(j => j.id === selectedUrgentJobId);
+      if (idx === -1) return;
+
+      const [urgentJob] = jobs.splice(idx, 1);
+      urgentJob.urgent = true;
+      urgentJob.status = 'Queued';
+
+      // Place at top of Queued jobs (right after Printing job if one exists)
+      const printingIdx = jobs.findIndex(j => j.status === 'Printing');
+      const insertAt = printingIdx >= 0 ? printingIdx + 1 : 0;
+      jobs.splice(insertAt, 0, urgentJob);
+
+      lastHighlightedJobId = urgentJob.id;
+      saveJobs();
+      closeUrgentModal();
+      recalculateAll();
+      showToast(`⚡ CONFIRMED: ${urgentJob.token} marked URGENT and moved to top of queue!`);
+    }
+
+    function renderQueue() {
+      const container = document.getElementById('queueContainer');
+      const filter = document.getElementById('filterStatus').value;
+      const enriched = computeQueueMetrics();
+
+      // Update header ticker
+      const printingJob = enriched.find(j => j.status === 'Printing') || enriched.find(j => j.status === 'Queued');
+      document.getElementById('nowServingToken').textContent = printingJob ? printingJob.token : 'Idle';
+      const activeCount = enriched.filter(j => j.status === 'Printing' || j.status === 'Queued').length;
+      document.getElementById('activeQueueCount').textContent = `${activeCount} active job${activeCount === 1 ? '' : 's'}`;
+
+      const filtered = enriched.filter(j => {
+        if (filter === 'ACTIVE') return j.status === 'Printing' || j.status === 'Queued';
+        if (filter === 'READY') return j.status === 'Ready';
+        if (filter === 'COMPLETED') return j.status === 'Completed';
+        return true;
+      });
+
+      container.innerHTML = filtered.map((job) => {
+        const realIdx = jobs.findIndex(x => x.id === job.id);
+        const statusColors = {
+          'Queued': 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+          'Printing': 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40',
+          'Ready': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+          'Completed': 'bg-slate-800 text-slate-400 border-slate-700'
+        };
+
+        return `
+          <div class="bg-slate-950 border ${job.urgent ? 'urgent-card border-amber-500' : 'border-slate-800'} rounded-xl p-4 transition hover:border-slate-700">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="flex items-start gap-3">
+                <button onclick="lastHighlightedJobId='${job.id}'; updateReceiptCard();" class="mono font-extrabold text-base px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-indigo-400 hover:border-indigo-500 transition" title="Click to inspect token receipt">
+                  ${job.token}
+                </button>
+                <div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h4 class="font-bold text-sm text-white">${job.docName}</h4>
+                    ${job.urgent ? `<span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">⚡ URGENT PRIORITY</span>` : ''}
+                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full border ${statusColors[job.status]}">${job.status}</span>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-0.5">${job.student}</p>
+                  <div class="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-300 mono">
+                    <span>📄 ${job.pages}p × ${job.copies}c</span>
+                    <span>•</span>
+                    <span>${job.color === 'COLOUR' ? '🌈 Colour' : '⚫ B&W'}</span>
+                    <span>•</span>
+                    <span class="text-emerald-400 font-semibold">₹${job.cost}</span>
+                    <span>•</span>
+                    <span class="text-amber-300">Est. Wait: <strong>${formatDuration(job.totalWaitSec)}</strong> (${job.pickupTimeStr})</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reorder Up/Down Controls -->
+              <div class="flex items-center gap-1">
+                <button onclick="moveJob('${job.id}', -1)" ${realIdx === 0 ? 'disabled' : ''}
+                  class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-30 border border-slate-800 text-xs" title="Move Up in Queue">↑</button>
+                <button onclick="moveJob('${job.id}', 1)" ${realIdx === jobs.length - 1 ? 'disabled' : ''}
+                  class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-30 border border-slate-800 text-xs" title="Move Down in Queue">↓</button>
+              </div>
+            </div>
+
+            <!-- Action Controls Bar (Step 02 Status & Step 03 Urgent Button) -->
+            <div class="mt-3 pt-3 border-t border-slate-900 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[11px] text-slate-400 mr-1">Set Status:</span>
+                ${['Queued', 'Printing', 'Ready', 'Completed'].map(st => `
+                  <button onclick="changeJobStatus('${job.id}', '${st}')"
+                    class="text-xs px-2.5 py-1 rounded-lg font-medium transition ${job.status === st ? 'bg-indigo-600 text-white' : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'}">
+                    ${st}
+                  </button>
+                `).join('')}
+              </div>
+
+              <div>
+                ${!job.urgent && (job.status === 'Queued' || job.status === 'Printing') ? `
+                  <button onclick="openUrgentModal('${job.id}')"
+                    class="text-xs bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-lg font-semibold transition flex items-center gap-1">
+                    ⚡ Mark Urgent
+                  </button>
+                ` : job.urgent ? `
+                  <span class="text-[11px] text-amber-400 font-semibold mono">✓ Urgent Confirmed</span>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function fillQuickSample() {
+      const samples = [
+        { student: 'Vikramaditya S (NIE-CS-034)', doc: 'Cloud_DevOps_Pipeline_Report.pdf', pages: 18, copies: 1, color: 'COLOUR' },
+        { student: 'Ananya Hegde (NIE-AIML-012)', doc: 'Machine_Learning_Research_Paper.pdf', pages: 10, copies: 3, color: 'BW' },
+        { student: 'Rohan Deshmukh (NIE-ISE-055)', doc: 'CyberSecurity_OWASP_Top10_Notes.pdf', pages: 22, copies: 1, color: 'BW' }
+      ];
+      const pick = samples[Math.floor(Math.random() * samples.length)];
+      document.getElementById('studentName').value = pick.student;
+      document.getElementById('docName').value = pick.doc;
+      document.getElementById('pageCount').value = pick.pages;
+      document.getElementById('copyCount').value = pick.copies;
+      document.querySelector(`input[name="colorPref"][value="${pick.color}"]`).checked = true;
+      updateLivePreview();
+      showToast('✨ Auto-filled realistic sample document!');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.remove('hidden');
+      t.classList.add('flex');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        t.classList.add('hidden');
+        t.classList.remove('flex');
+      }, 3200);
+    }
+
+    function recalculateAll() {
+      updateLivePreview();
+      renderQueue();
+      updateReceiptCard();
+    }
+
+    // Initialize on load
+    recalculateAll();
+  </script>
+</body>
+</html>
