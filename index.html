@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PrintQ — Smart Campus Print Queue & Token System</title>
+  <title>PrintQ — Rush-Hour Campus Print Queue & Token System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; }
     .mono { font-family: 'JetBrains Mono', monospace; }
     @keyframes pulse-border {
-      0%, 100% { border-color: rgba(245, 158, 11, 0.9); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+      0%, 100% { border-color: rgba(245, 158, 11, 0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.35); }
       50% { border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
     }
     .urgent-card { animation: pulse-border 2s infinite; }
@@ -18,8 +18,8 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- Top Navigation & Judge Verification Banner -->
-  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-30">
+  <!-- Top Navigation & Twist Status Banner -->
+  <header class="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-extrabold text-xl shadow-lg shadow-indigo-500/30">PQ</div>
@@ -27,57 +27,64 @@
           <div class="flex items-center gap-2">
             <h1 class="font-bold text-lg tracking-tight">PrintQ</h1>
             <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">PS-24 MVP</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">⚡ MINUTE-40 TWIST ACTIVE</span>
           </div>
-          <p class="text-xs text-slate-400">Campus Print Queue & Live Wait-Time Estimator</p>
+          <p class="text-xs text-slate-400">Split Customer Token View & Rush-Hour Shop Operator Queue</p>
         </div>
       </div>
 
-      <!-- Live Now Serving Ticker -->
-      <div class="flex items-center gap-4 bg-slate-950 border border-slate-800 px-4 py-2 rounded-xl">
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-          <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Now Printing:</span>
-          <span id="nowServingToken" class="mono font-bold text-emerald-400 text-sm">#PQ-101</span>
-        </div>
-        <div class="h-4 w-px bg-slate-800"></div>
-        <div class="text-xs text-slate-400">
-          Active Queue: <span id="activeQueueCount" class="font-bold text-white">3 jobs</span>
-        </div>
-        <button onclick="resetDemoData()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg transition" title="Reset sample data for judges">
-          ↺ Reset Demo
+      <!-- Rush Hour Mode Toggle + Live Ticker -->
+      <div class="flex flex-wrap items-center gap-3">
+        <button id="rushHourBtn" onclick="toggleRushHour()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-amber-500/20 border-amber-500/50 text-amber-300">
+          <span>🔥 Rush-Hour Queue: ON (1.25x Buffer)</span>
         </button>
+
+        <div class="flex items-center gap-3 bg-slate-950 border border-slate-800 px-3.5 py-2 rounded-xl">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Printing:</span>
+            <span id="nowServingToken" class="mono font-bold text-emerald-400 text-sm">#PQ-101</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div class="text-xs text-slate-400">
+            Urgent Slot: <span id="urgentSlotBadge" class="font-bold text-amber-400 mono">0 / 1 Used</span>
+          </div>
+          <button onclick="resetDemoData()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg transition" title="Reset sample data for judges">
+            ↺ Reset Demo
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Judge 3-Step Quick Guide Bar -->
-    <div class="bg-indigo-950/60 border-t border-indigo-900/60 px-4 py-1.5">
+    <!-- Judge 3-Step + Twist Quick Guide Bar -->
+    <div class="bg-indigo-950/70 border-t border-indigo-900/60 px-4 py-1.5">
       <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between text-xs text-indigo-200 gap-2">
-        <span class="font-semibold text-indigo-300">🎯 JUDGE VERIFICATION PATH:</span>
+        <span class="font-bold text-amber-300">🏆 TWIST & JUDGE VERIFICATION:</span>
         <div class="flex flex-wrap gap-4">
-          <span><strong>Step 01:</strong> Submit job on Left Panel ➔ View Token & Wait Estimate</span>
-          <span><strong>Step 02:</strong> Change Job Status & Reorder (↑/↓) on Right Panel</span>
-          <span><strong>Step 03:</strong> Click <strong>"⚡ Urgent"</strong> on any queued job ➔ Confirm Modal</span>
+          <span><strong>1.</strong> Wait time from <u>Page Count + Colour + Job Type</u></span>
+          <span><strong>2.</strong> Change Status & Reorder Queue (↑/↓)</span>
+          <span><strong>3.</strong> <u>Single Active Urgent Override</u> with <u>Delay Impact Confirmation Modal</u></span>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Main Split View: Left = Student Portal | Right = Shop Queue -->
+  <!-- Main Split View: Left = Student Portal | Right = Shop Operator Queue -->
   <main class="max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
     
     <!-- LEFT COLUMN: STUDENT SUBMISSION & TOKEN RECEIPT (5 cols) -->
     <section class="lg:col-span-5 flex flex-col gap-5">
       
-      <!-- Visible Assumptions Card (MVP Core Requirement #2) -->
+      <!-- Visible Assumptions Card (MVP Core Requirement #2 + Twist Formula) -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between mb-1.5">
           <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-            <span>⚙️</span> Visible Estimation Assumptions (Live Formula)
+            <span>⚙️</span> Rush-Hour Wait-Time Formula (Visible Assumptions)
           </h2>
-          <span class="text-[11px] text-slate-400 mono">Editable</span>
+          <span id="rushMultiplierBadge" class="text-[11px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold mono">Rush 1.25x</span>
         </div>
         <p class="text-xs text-slate-300 mb-3 leading-relaxed">
-          Wait time = <strong>Queue Backlog Ahead</strong> + <strong>Job Print Time</strong> + <strong>Handling Buffer</strong>.
+          Wait = <strong>Queue Backlog Ahead</strong> + <strong>[(Pages × Copies × Speed) + Job-Type Finishing] × Rush Factor</strong>
         </p>
         <div class="grid grid-cols-3 gap-2 text-center bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
           <div>
@@ -95,9 +102,9 @@
             </div>
           </div>
           <div>
-            <label class="text-[10px] text-slate-400 block">Setup/Job</label>
+            <label class="text-[10px] text-slate-400 block">Base Handling</label>
             <div class="flex items-center justify-center gap-1 mt-0.5">
-              <input id="assumpSetup" type="number" value="30" min="5" max="120" onchange="recalculateAll()" class="w-12 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center mono text-xs font-bold text-emerald-300">
+              <input id="assumpSetup" type="number" value="25" min="5" max="120" onchange="recalculateAll()" class="w-12 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center mono text-xs font-bold text-emerald-300">
               <span class="text-[11px] text-slate-400">sec</span>
             </div>
           </div>
@@ -108,7 +115,7 @@
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Step 01 • Student View</span>
+            <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Step 01 • Customer Token View</span>
             <h2 class="text-lg font-bold text-white">Submit Print Job</h2>
           </div>
           <button type="button" onclick="fillQuickSample()" class="text-xs bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-lg font-medium transition">
@@ -116,30 +123,41 @@
           </button>
         </div>
 
-        <form id="printForm" onsubmit="handleJobSubmit(event)" class="space-y-4">
+        <form id="printForm" onsubmit="handleJobSubmit(event)" class="space-y-3.5">
           <div>
             <label class="block text-xs font-medium text-slate-300 mb-1">Student Name / Fictional Roll No.</label>
-            <input id="studentName" type="text" required placeholder="e.g., Aarav Sharma (NIE-CS-042)" value="Riya Verma (NIE-AIML-019)"
-              class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white" />
+            <input id="studentName" type="text" required placeholder="e.g., Aarav Sharma (NIE-CS-042)" value="Basavaraj (NIE-AIML-019)"
+              class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm text-white" />
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Document Name (.pdf / .docx) *</label>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Document Name (Metadata Only — No File Upload Required) *</label>
             <input id="docName" type="text" required placeholder="e.g., Lab_Record_Final.pdf" value="Compiler_Design_Lab_Manual.pdf"
-              class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white" />
+              class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm text-white" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-medium text-slate-300 mb-1">Pages per Copy *</label>
               <input id="pageCount" type="number" min="1" max="500" required value="12" oninput="updateLivePreview()"
-                class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white mono" />
+                class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm text-white mono" />
             </div>
             <div>
               <label class="block text-xs font-medium text-slate-300 mb-1">Number of Copies *</label>
               <input id="copyCount" type="number" min="1" max="100" required value="2" oninput="updateLivePreview()"
-                class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white mono" />
+                class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm text-white mono" />
             </div>
+          </div>
+
+          <!-- TWIST REQUIREMENT: Job Type & Binding Finishing -->
+          <div>
+            <label class="block text-xs font-medium text-amber-300 mb-1">Job Type & Finishing (Twist Parameter) *</label>
+            <select id="jobType" onchange="updateLivePreview()" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white">
+              <option value="STANDARD">📄 Standard Loose Sheets (+0s finishing • ₹0)</option>
+              <option value="DUPLEX">🔄 Duplex Double-Sided (+15s alignment • ₹0)</option>
+              <option value="SPIRAL" selected>📒 Spiral Bound Lab Manual (+60s binding • +₹30)</option>
+              <option value="THESIS">📘 Hardbound Project Report (+90s pressing • +₹60)</option>
+            </select>
           </div>
 
           <div>
@@ -147,14 +165,14 @@
             <div class="grid grid-cols-2 gap-3">
               <label class="cursor-pointer">
                 <input type="radio" name="colorPref" value="BW" checked onchange="updateLivePreview()" class="peer hidden" />
-                <div class="border border-slate-800 peer-checked:border-indigo-500 peer-checked:bg-indigo-600/15 bg-slate-950 rounded-xl p-3 text-center transition">
+                <div class="border border-slate-800 peer-checked:border-indigo-500 peer-checked:bg-indigo-600/15 bg-slate-950 rounded-xl p-2.5 text-center transition">
                   <div class="font-semibold text-sm text-white">⚫ Black & White</div>
                   <div class="text-[11px] text-slate-400">₹2 / page • Fast</div>
                 </div>
               </label>
               <label class="cursor-pointer">
                 <input type="radio" name="colorPref" value="COLOUR" onchange="updateLivePreview()" class="peer hidden" />
-                <div class="border border-slate-800 peer-checked:border-indigo-500 peer-checked:bg-indigo-600/15 bg-slate-950 rounded-xl p-3 text-center transition">
+                <div class="border border-slate-800 peer-checked:border-indigo-500 peer-checked:bg-indigo-600/15 bg-slate-950 rounded-xl p-2.5 text-center transition">
                   <div class="font-semibold text-sm text-white">🌈 Full Colour</div>
                   <div class="text-[11px] text-slate-400">₹10 / page • High-Res</div>
                 </div>
@@ -170,7 +188,7 @@
             </div>
             <div class="text-right">
               <span class="text-slate-400 block">Total Pages & Cost:</span>
-              <span id="liveCostPreview" class="font-bold text-emerald-400 text-sm mono">24 pgs • ₹48</span>
+              <span id="liveCostPreview" class="font-bold text-emerald-400 text-sm mono">24 pgs • ₹78</span>
             </div>
           </div>
 
@@ -181,18 +199,18 @@
         </form>
       </div>
 
-      <!-- Generated Token Receipt Card (Highlighted upon Submit) -->
+      <!-- Generated Token Receipt Card -->
       <div id="tokenReceiptCard" class="bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-900 border-2 border-indigo-500/60 rounded-2xl p-5 shadow-xl relative overflow-hidden">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
           <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
-              ✓ Active Token Receipt
+            <span id="receiptBadge" class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+              ✓ Live Customer Token Receipt
             </span>
             <h3 id="receiptDocName" class="font-bold text-base text-white mt-1">OS_MiniProject_Report.pdf</h3>
             <p id="receiptStudent" class="text-xs text-slate-400">Submitted by Karthik Rao (NIE-CS-088)</p>
           </div>
           <div class="text-right">
-            <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Your Token</span>
+            <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Token ID</span>
             <span id="receiptToken" class="mono text-2xl font-extrabold text-indigo-400">#PQ-103</span>
           </div>
         </div>
@@ -203,40 +221,48 @@
             <span id="receiptWait" class="mono font-bold text-sm text-amber-400">3m 20s</span>
           </div>
           <div>
-            <span class="text-[10px] text-slate-400 block uppercase">Pickup By</span>
-            <span id="receiptPickup" class="mono font-bold text-sm text-white">3:14 PM</span>
+            <span class="text-[10px] text-slate-400 block uppercase">Est. Pickup</span>
+            <span id="receiptPickup" class="mono font-bold text-sm text-white">3:48 PM</span>
           </div>
           <div>
-            <span class="text-[10px] text-slate-400 block uppercase">Status</span>
+            <span class="text-[10px] text-slate-400 block uppercase">Queue Status</span>
             <span id="receiptStatus" class="font-bold text-xs text-sky-400">Queued (#3)</span>
           </div>
         </div>
 
-        <p id="receiptFormulaBreakdown" class="text-[11px] text-slate-400 mono bg-slate-950/60 px-3 py-2 rounded-lg border border-slate-800/60">
-          Math: 2m 10s backlog ahead + 1m 10s job time (10 pgs × 1 copy B&W + 30s setup)
+        <p id="receiptFormulaBreakdown" class="text-[11px] text-slate-300 mono bg-slate-950/70 px-3 py-2 rounded-lg border border-slate-800/70">
+          Math: 2m 10s backlog + 1m 10s job time
         </p>
       </div>
 
     </section>
 
-    <!-- RIGHT COLUMN: SHOP OWNER LIVE QUEUE & CONTROLS (7 cols) -->
+    <!-- RIGHT COLUMN: SHOP OPERATOR LIVE QUEUE & CONTROLS (7 cols) -->
     <section class="lg:col-span-7 flex flex-col gap-4">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex-1 flex flex-col">
         
         <!-- Queue Header & Filters -->
         <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div>
-            <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Step 02 & 03 • Shop Operator View</span>
-            <h2 class="text-lg font-bold text-white">Live Print Shop Queue</h2>
+            <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Step 02 & 03 • Shop Operator Queue</span>
+            <h2 class="text-lg font-bold text-white">Rush-Hour Queue Management</h2>
           </div>
 
           <div class="flex items-center gap-2">
             <select id="filterStatus" onchange="renderQueue()" class="bg-slate-950 border border-slate-800 text-xs rounded-xl px-3 py-2 text-slate-200">
               <option value="ALL">All Jobs</option>
-              <option value="ACTIVE">Active Only (Queued + Printing)</option>
+              <option value="ACTIVE">Active Queue (Printing + Queued)</option>
               <option value="READY">Ready for Pickup</option>
               <option value="COMPLETED">Completed</option>
             </select>
+          </div>
+        </div>
+
+        <!-- Single Urgent Constraint Notice Banner -->
+        <div id="urgentConstraintBanner" class="mt-3 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2 text-amber-200">
+            <span>⚡</span>
+            <span id="urgentBannerText"><strong>Twist Policy:</strong> Shop can mark <strong>1 active job urgent</strong> at a time after confirming delay impacts on other queued jobs.</span>
           </div>
         </div>
 
@@ -249,42 +275,61 @@
     </section>
   </main>
 
-  <!-- STEP 03: URGENT CONFIRMATION MODAL -->
-  <div id="urgentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-slate-900 border-2 border-amber-500/70 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">⚡</div>
-        <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Step 03 Verification • Priority Override</span>
-          <h3 class="text-lg font-bold text-white">Mark Job as Urgent?</h3>
+  <!-- STEP 03 + TWIST: URGENT DELAY IMPACT CONFIRMATION MODAL -->
+  <div id="urgentModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border-2 border-amber-500/80 rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">⚡</div>
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Step 03 & Minute-40 Twist Verification</span>
+            <h3 class="text-lg font-bold text-white">Confirm Urgent Override & Queue Delays</h3>
+          </div>
+        </div>
+        <span class="text-[11px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">Max 1 Urgent</span>
+      </div>
+
+      <p class="text-sm text-slate-300 leading-relaxed mb-3">
+        Promoting <strong id="modalTokenName" class="text-amber-300 mono">#PQ-103</strong> (<span id="modalDocName" class="text-white">Document.pdf</span>) to the <strong>#1 priority waiting slot</strong> will directly delay the following jobs currently ahead of it:
+      </p>
+
+      <!-- List of Delayed Jobs (Twist Requirement) -->
+      <div class="bg-slate-950 border border-rose-500/40 rounded-xl p-3.5 mb-3">
+        <div class="flex items-center justify-between text-xs font-bold text-rose-300 mb-2">
+          <span>⚠️ AFFECTED JOBS IN QUEUE:</span>
+          <span id="modalDelayAmount" class="mono bg-rose-500/20 px-2 py-0.5 rounded">+2m 10s delay each</span>
+        </div>
+        <div id="modalAffectedList" class="space-y-1.5 max-h-32 overflow-y-auto text-xs">
+          <!-- Populated dynamically -->
         </div>
       </div>
 
-      <p class="text-sm text-slate-300 leading-relaxed mb-4">
-        You are promoting <strong id="modalTokenName" class="text-amber-300 mono">#PQ-103</strong> (<span id="modalDocName" class="text-white">Document.pdf</span>) to the <strong>top of the waiting queue</strong>.
-      </p>
-
-      <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 mb-4 text-xs space-y-1.5">
+      <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 mb-4 text-xs space-y-1">
         <div class="flex justify-between">
-          <span class="text-slate-400">Queue Impact:</span>
-          <span id="modalImpactText" class="text-amber-400 font-semibold">Moves to #1 waiting slot</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-slate-400">New Est. Wait Time:</span>
+          <span class="text-slate-400">Promoted Job New Wait Time:</span>
           <span id="modalNewWait" class="text-emerald-400 font-bold mono">~1 min 15 sec</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-400">Priority Express Reason:</span>
-          <span class="text-slate-200">Exam / Lab Viva Submission</span>
+          <span class="text-slate-400">Single-Urgent Slot Rule:</span>
+          <span id="modalSlotRuleText" class="text-amber-300 font-medium">Occupies the sole Urgent slot (1/1)</span>
         </div>
       </div>
+
+      <!-- Explicit Operator Confirmation Checkbox -->
+      <label class="flex items-start gap-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 mb-4 cursor-pointer select-none">
+        <input id="confirmDelayCheckbox" type="checkbox" onchange="toggleUrgentConfirmBtn()" class="mt-0.5 w-4 h-4 accent-amber-500 rounded" />
+        <span class="text-xs text-amber-100 leading-snug">
+          <strong>I confirm that other jobs in the queue will be delayed</strong> by this urgent override and authorize promoting this job to priority #1.
+        </span>
+      </label>
 
       <div class="flex items-center justify-end gap-3">
         <button onclick="closeUrgentModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition">
           Cancel
         </button>
-        <button onclick="confirmMarkUrgent()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/25 transition">
-          ⚡ Confirm Urgent Priority
+        <button id="confirmUrgentBtn" onclick="confirmMarkUrgent()" disabled
+          class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/25 transition">
+          ⚡ Confirm Delay & Mark Urgent
         </button>
       </div>
     </div>
@@ -296,9 +341,17 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'PRINTQ_PS24_JOBS_V1';
+    const STORAGE_KEY = 'PRINTQ_PS24_TWIST_V2';
     let selectedUrgentJobId = null;
     let lastHighlightedJobId = 'job-3';
+    let isRushHour = true;
+
+    const JOB_TYPES = {
+      STANDARD: { label: 'Loose Sheets', extraSec: 0, extraCost: 0 },
+      DUPLEX:   { label: 'Duplex 2-Sided', extraSec: 15, extraCost: 0 },
+      SPIRAL:   { label: 'Spiral Bound', extraSec: 60, extraCost: 30 },
+      THESIS:   { label: 'Hardbound Report', extraSec: 90, extraCost: 60 }
+    };
 
     const DEFAULT_JOBS = [
       {
@@ -309,9 +362,10 @@
         pages: 8,
         copies: 1,
         color: 'COLOUR',
+        jobType: 'STANDARD',
         status: 'Printing',
         urgent: false,
-        createdAt: Date.now() - 420000
+        delayedBySec: 0
       },
       {
         id: 'job-2',
@@ -321,21 +375,23 @@
         pages: 15,
         copies: 2,
         color: 'BW',
+        jobType: 'DUPLEX',
         status: 'Queued',
         urgent: false,
-        createdAt: Date.now() - 300000
+        delayedBySec: 0
       },
       {
         id: 'job-3',
         token: '#PQ-103',
         student: 'Karthik Rao (NIE-CS-088)',
         docName: 'OS_MiniProject_Report.pdf',
-        pages: 10,
+        pages: 12,
         copies: 1,
         color: 'BW',
+        jobType: 'SPIRAL',
         status: 'Queued',
         urgent: false,
-        createdAt: Date.now() - 180000
+        delayedBySec: 0
       },
       {
         id: 'job-4',
@@ -345,9 +401,10 @@
         pages: 6,
         copies: 1,
         color: 'BW',
+        jobType: 'STANDARD',
         status: 'Ready',
         urgent: false,
-        createdAt: Date.now() - 900000
+        delayedBySec: 0
       }
     ];
 
@@ -368,28 +425,52 @@
     function resetDemoData() {
       jobs = JSON.parse(JSON.stringify(DEFAULT_JOBS));
       lastHighlightedJobId = 'job-3';
+      isRushHour = true;
       saveJobs();
       recalculateAll();
-      showToast('↺ Demo data reset to initial state!');
+      showToast('↺ Reset to clean Rush-Hour Demo State!');
+    }
+
+    function toggleRushHour() {
+      isRushHour = !isRushHour;
+      const btn = document.getElementById('rushHourBtn');
+      const badge = document.getElementById('rushMultiplierBadge');
+      if (isRushHour) {
+        btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-amber-500/20 border-amber-500/50 text-amber-300';
+        btn.innerHTML = '<span>🔥 Rush-Hour Queue: ON (1.25x Buffer)</span>';
+        badge.textContent = 'Rush 1.25x';
+        badge.className = 'text-[11px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold mono';
+      } else {
+        btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-slate-800 border-slate-700 text-slate-300';
+        btn.innerHTML = '<span>⚡ Normal Hours: 1.0x Standard</span>';
+        badge.textContent = 'Normal 1.0x';
+        badge.className = 'text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold mono';
+      }
+      recalculateAll();
+      showToast(isRushHour ? '🔥 Rush-Hour Multiplier (1.25x) Activated!' : 'Standard Queue Timing (1.0x) Activated');
     }
 
     function getAssumptions() {
       const bw = Math.max(1, parseInt(document.getElementById('assumpBW').value) || 4);
       const color = Math.max(1, parseInt(document.getElementById('assumpColor').value) || 12);
-      const setup = Math.max(5, parseInt(document.getElementById('assumpSetup').value) || 30);
-      return { bw, color, setup };
+      const setup = Math.max(5, parseInt(document.getElementById('assumpSetup').value) || 25);
+      const rushFactor = isRushHour ? 1.25 : 1.0;
+      return { bw, color, setup, rushFactor };
     }
 
     function calcJobDurationSec(job) {
-      const { bw, color, setup } = getAssumptions();
+      const { bw, color, setup, rushFactor } = getAssumptions();
       const perPage = job.color === 'COLOUR' ? color : bw;
+      const typeInfo = JOB_TYPES[job.jobType] || JOB_TYPES.STANDARD;
       const totalPages = job.pages * job.copies;
-      return (totalPages * perPage) + setup;
+      const rawSec = (totalPages * perPage) + setup + typeInfo.extraSec;
+      return Math.round(rawSec * rushFactor);
     }
 
-    function calcJobCost(pages, copies, color) {
+    function calcJobCost(pages, copies, color, jobType) {
       const rate = color === 'COLOUR' ? 10 : 2;
-      return pages * copies * rate;
+      const typeInfo = JOB_TYPES[jobType] || JOB_TYPES.STANDARD;
+      return (pages * copies * rate) + (typeInfo.extraCost * copies);
     }
 
     function formatDuration(sec) {
@@ -405,17 +486,16 @@
       return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
-    // Calculate backlog & cumulative wait time for every job in queue order
     function computeQueueMetrics() {
       let cumulativeBacklogSec = 0;
-      return jobs.map((job, idx) => {
+      return jobs.map((job) => {
         const ownDurationSec = calcJobDurationSec(job);
+        const typeInfo = JOB_TYPES[job.jobType] || JOB_TYPES.STANDARD;
         let backlogAheadSec = 0;
         let totalWaitSec = 0;
 
         if (job.status === 'Printing') {
-          // Assume printing job has ~60% remaining
-          const remaining = Math.round(ownDurationSec * 0.6);
+          const remaining = Math.round(ownDurationSec * 0.55);
           backlogAheadSec = 0;
           totalWaitSec = remaining;
           cumulativeBacklogSec += remaining;
@@ -429,11 +509,12 @@
 
         return {
           ...job,
+          jobTypeLabel: typeInfo.label,
           ownDurationSec,
           backlogAheadSec,
           totalWaitSec,
           pickupTimeStr: formatPickupTime(totalWaitSec),
-          cost: calcJobCost(job.pages, job.copies, job.color)
+          cost: calcJobCost(job.pages, job.copies, job.color, job.jobType)
         };
       });
     }
@@ -441,6 +522,7 @@
     function updateLivePreview() {
       const pages = Math.max(1, parseInt(document.getElementById('pageCount').value) || 1);
       const copies = Math.max(1, parseInt(document.getElementById('copyCount').value) || 1);
+      const jobType = document.getElementById('jobType').value;
       const color = document.querySelector('input[name="colorPref"]:checked').value;
 
       const enriched = computeQueueMetrics();
@@ -448,10 +530,10 @@
         .filter(j => j.status === 'Printing' || j.status === 'Queued')
         .reduce((acc, j) => acc + (j.status === 'Printing' ? j.totalWaitSec : j.ownDurationSec), 0);
 
-      const newJobSec = calcJobDurationSec({ pages, copies, color });
+      const newJobSec = calcJobDurationSec({ pages, copies, color, jobType });
       const totalWait = activeBacklog + newJobSec;
       const totalPages = pages * copies;
-      const cost = calcJobCost(pages, copies, color);
+      const cost = calcJobCost(pages, copies, color, jobType);
 
       document.getElementById('liveWaitPreview').textContent = `~${formatDuration(totalWait)} (Pickup ${formatPickupTime(totalWait)})`;
       document.getElementById('liveCostPreview').textContent = `${totalPages} pgs • ₹${cost}`;
@@ -463,6 +545,7 @@
       const docName = document.getElementById('docName').value.trim() || 'Untitled_Document.pdf';
       const pages = Math.max(1, parseInt(document.getElementById('pageCount').value) || 1);
       const copies = Math.max(1, parseInt(document.getElementById('copyCount').value) || 1);
+      const jobType = document.getElementById('jobType').value;
       const color = document.querySelector('input[name="colorPref"]:checked').value;
 
       const nextNum = 101 + jobs.length;
@@ -474,12 +557,12 @@
         pages,
         copies,
         color,
+        jobType,
         status: 'Queued',
         urgent: false,
-        createdAt: Date.now()
+        delayedBySec: 0
       };
 
-      // Insert before Ready/Completed jobs
       const firstDoneIdx = jobs.findIndex(j => j.status === 'Ready' || j.status === 'Completed');
       if (firstDoneIdx === -1) {
         jobs.push(newJob);
@@ -490,7 +573,7 @@
       lastHighlightedJobId = newJob.id;
       saveJobs();
       recalculateAll();
-      showToast(`🎉 Job Submitted! Token ${newJob.token} generated.`);
+      showToast(`🎉 Token ${newJob.token} created with ${JOB_TYPES[jobType].label} estimate!`);
     }
 
     function updateReceiptCard() {
@@ -503,27 +586,30 @@
       const posText = posIndex >= 0 ? `${target.status} (#${posIndex + 1} in line)` : target.status;
 
       document.getElementById('receiptDocName').textContent = target.docName;
-      document.getElementById('receiptStudent').textContent = `Submitted by ${target.student} • ${target.pages} pgs × ${target.copies} (${target.color === 'COLOUR' ? 'Colour' : 'B&W'})`;
+      document.getElementById('receiptStudent').textContent = `${target.student} • ${target.pages}p × ${target.copies}c • ${target.jobTypeLabel} (${target.color === 'COLOUR' ? 'Colour' : 'B&W'})`;
       document.getElementById('receiptToken').textContent = target.token;
       document.getElementById('receiptWait').textContent = formatDuration(target.totalWaitSec);
       document.getElementById('receiptPickup').textContent = target.pickupTimeStr;
       document.getElementById('receiptStatus').textContent = (target.urgent ? '⚡ URGENT • ' : '') + posText;
+
+      const delayNote = target.delayedBySec > 0 ? ` [Includes +${formatDuration(target.delayedBySec)} urgent queue delay]` : '';
       document.getElementById('receiptFormulaBreakdown').textContent =
-        `Math: ${formatDuration(target.backlogAheadSec)} backlog ahead + ${formatDuration(target.ownDurationSec)} print time (${target.pages * target.copies} total pgs + setup) = ${formatDuration(target.totalWaitSec)}`;
+        `Math: ${formatDuration(target.backlogAheadSec)} queue backlog + ${formatDuration(target.ownDurationSec)} (${target.jobTypeLabel}, ${isRushHour ? '1.25x Rush' : '1x'})${delayNote}`;
     }
 
-    // STEP 02: Change Job Status
     function changeJobStatus(jobId, newStatus) {
       const job = jobs.find(j => j.id === jobId);
       if (!job) return;
       job.status = newStatus;
+      if (newStatus === 'Ready' || newStatus === 'Completed') {
+        job.urgent = false; // Free up the single urgent slot once completed/ready
+      }
       lastHighlightedJobId = jobId;
       saveJobs();
       recalculateAll();
       showToast(`✅ ${job.token} status updated to "${newStatus}"`);
     }
 
-    // STEP 02: Reorder Queue Controls (Up / Down)
     function moveJob(jobId, direction) {
       const idx = jobs.findIndex(j => j.id === jobId);
       if (idx === -1) return;
@@ -540,7 +626,7 @@
       showToast(`↕️ Reordered ${temp.token} in shop queue`);
     }
 
-    // STEP 03: Open Urgent Confirmation Modal
+    // TWIST + STEP 03: Open Urgent Modal with exact Affected Jobs & Delay Impact
     function openUrgentModal(jobId) {
       const enriched = computeQueueMetrics();
       const job = enriched.find(j => j.id === jobId);
@@ -548,16 +634,49 @@
 
       selectedUrgentJobId = jobId;
       document.getElementById('modalTokenName').textContent = job.token;
-      document.getElementById('modalDocName').textContent = job.docName;
+      document.getElementById('modalDocName').textContent = `${job.docName} (${job.jobTypeLabel})`;
+      document.getElementById('modalDelayAmount').textContent = `+${formatDuration(job.ownDurationSec)} delay`;
 
-      // Calculate wait if promoted right after any currently Printing job
+      // Find all Queued jobs currently ahead of this job that will be pushed back
+      const targetIdx = enriched.findIndex(j => j.id === jobId);
+      const printingIdx = enriched.findIndex(j => j.status === 'Printing');
+      const insertAt = printingIdx >= 0 ? printingIdx + 1 : 0;
+
+      const affectedJobs = enriched.slice(insertAt, targetIdx).filter(j => j.status === 'Queued');
+      const listEl = document.getElementById('modalAffectedList');
+
+      if (affectedJobs.length === 0) {
+        listEl.innerHTML = `<div class="text-slate-300 py-1">This job is already at the front of the waiting queue (#1 waiting). Marking it urgent locks its priority slot.</div>`;
+      } else {
+        listEl.innerHTML = affectedJobs.map(aj => `
+          <div class="flex items-center justify-between bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800">
+            <span><strong class="mono text-indigo-300">${aj.token}</strong> — ${aj.docName}</span>
+            <span class="mono text-rose-400 font-semibold">${formatDuration(aj.totalWaitSec)} ➔ ${formatDuration(aj.totalWaitSec + job.ownDurationSec)}</span>
+          </div>
+        `).join('');
+      }
+
+      const existingUrgent = enriched.find(j => j.urgent && j.id !== jobId && (j.status === 'Queued' || j.status === 'Printing'));
+      document.getElementById('modalSlotRuleText').textContent = existingUrgent
+        ? `Replaces ${existingUrgent.token} as the sole Active Urgent job (1/1)`
+        : `Occupies the sole Active Urgent slot (1/1)`;
+
       const printingJob = enriched.find(j => j.status === 'Printing');
       const waitIfUrgent = (printingJob ? printingJob.totalWaitSec : 0) + job.ownDurationSec;
-
       document.getElementById('modalNewWait').textContent = `~${formatDuration(waitIfUrgent)} (Pickup ${formatPickupTime(waitIfUrgent)})`;
+
+      // Reset confirmation checkbox
+      document.getElementById('confirmDelayCheckbox').checked = false;
+      toggleUrgentConfirmBtn();
+
       const modal = document.getElementById('urgentModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+    }
+
+    function toggleUrgentConfirmBtn() {
+      const checked = document.getElementById('confirmDelayCheckbox').checked;
+      document.getElementById('confirmUrgentBtn').disabled = !checked;
     }
 
     function closeUrgentModal() {
@@ -572,20 +691,44 @@
       const idx = jobs.findIndex(j => j.id === selectedUrgentJobId);
       if (idx === -1) return;
 
+      const promotedDuration = calcJobDurationSec(jobs[idx]);
+
+      // Enforce Twist Rule: Only ONE active urgent job at a time
+      jobs.forEach(j => { j.urgent = false; });
+
+      // Record delay impact on jobs that were ahead of the promoted job
+      const printingIdx = jobs.findIndex(j => j.status === 'Printing');
+      const insertAt = printingIdx >= 0 ? printingIdx + 1 : 0;
+      for (let i = insertAt; i < idx; i++) {
+        if (jobs[i].status === 'Queued') {
+          jobs[i].delayedBySec = (jobs[i].delayedBySec || 0) + promotedDuration;
+        }
+      }
+
       const [urgentJob] = jobs.splice(idx, 1);
       urgentJob.urgent = true;
       urgentJob.status = 'Queued';
+      urgentJob.delayedBySec = 0;
 
-      // Place at top of Queued jobs (right after Printing job if one exists)
-      const printingIdx = jobs.findIndex(j => j.status === 'Printing');
-      const insertAt = printingIdx >= 0 ? printingIdx + 1 : 0;
-      jobs.splice(insertAt, 0, urgentJob);
+      const newPrintingIdx = jobs.findIndex(j => j.status === 'Printing');
+      const finalInsertAt = newPrintingIdx >= 0 ? newPrintingIdx + 1 : 0;
+      jobs.splice(finalInsertAt, 0, urgentJob);
 
       lastHighlightedJobId = urgentJob.id;
       saveJobs();
       closeUrgentModal();
       recalculateAll();
-      showToast(`⚡ CONFIRMED: ${urgentJob.token} marked URGENT and moved to top of queue!`);
+      showToast(`⚡ ${urgentJob.token} promoted to #1 Urgent! Affected jobs updated with delay notice.`);
+    }
+
+    function clearUrgentStatus(jobId) {
+      const job = jobs.find(j => j.id === jobId);
+      if (!job) return;
+      job.urgent = false;
+      jobs.forEach(j => { j.delayedBySec = 0; });
+      saveJobs();
+      recalculateAll();
+      showToast(`Urgent priority cleared from ${job.token}.`);
     }
 
     function renderQueue() {
@@ -593,11 +736,18 @@
       const filter = document.getElementById('filterStatus').value;
       const enriched = computeQueueMetrics();
 
-      // Update header ticker
       const printingJob = enriched.find(j => j.status === 'Printing') || enriched.find(j => j.status === 'Queued');
       document.getElementById('nowServingToken').textContent = printingJob ? printingJob.token : 'Idle';
-      const activeCount = enriched.filter(j => j.status === 'Printing' || j.status === 'Queued').length;
-      document.getElementById('activeQueueCount').textContent = `${activeCount} active job${activeCount === 1 ? '' : 's'}`;
+
+      const activeUrgentJob = enriched.find(j => j.urgent && (j.status === 'Queued' || j.status === 'Printing'));
+      document.getElementById('urgentSlotBadge').textContent = activeUrgentJob ? `1 / 1 (${activeUrgentJob.token})` : '0 / 1 Used';
+
+      const bannerText = document.getElementById('urgentBannerText');
+      if (activeUrgentJob) {
+        bannerText.innerHTML = `<strong>Active Urgent Slot Occupied by ${activeUrgentJob.token}:</strong> Other queued jobs reflect confirmed delay impact. Marking another job urgent will replace it.`;
+      } else {
+        bannerText.innerHTML = `<strong>Twist Policy:</strong> Shop can mark <strong>1 active job urgent</strong> at a time only after confirming delay impacts on other queued jobs.`;
+      }
 
       const filtered = enriched.filter(j => {
         if (filter === 'ACTIVE') return j.status === 'Printing' || j.status === 'Queued';
@@ -625,18 +775,21 @@
                 <div>
                   <div class="flex flex-wrap items-center gap-2">
                     <h4 class="font-bold text-sm text-white">${job.docName}</h4>
-                    ${job.urgent ? `<span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">⚡ URGENT PRIORITY</span>` : ''}
+                    ${job.urgent ? `<span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">⚡ ACTIVE URGENT (1/1)</span>` : ''}
+                    ${job.delayedBySec > 0 && job.status === 'Queued' ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">⚠️ Delayed +${formatDuration(job.delayedBySec)}</span>` : ''}
                     <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full border ${statusColors[job.status]}">${job.status}</span>
                   </div>
                   <p class="text-xs text-slate-400 mt-0.5">${job.student}</p>
-                  <div class="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-300 mono">
+                  <div class="flex flex-wrap items-center gap-2.5 mt-2 text-xs text-slate-300 mono">
                     <span>📄 ${job.pages}p × ${job.copies}c</span>
+                    <span>•</span>
+                    <span class="text-indigo-300">${job.jobTypeLabel}</span>
                     <span>•</span>
                     <span>${job.color === 'COLOUR' ? '🌈 Colour' : '⚫ B&W'}</span>
                     <span>•</span>
                     <span class="text-emerald-400 font-semibold">₹${job.cost}</span>
                     <span>•</span>
-                    <span class="text-amber-300">Est. Wait: <strong>${formatDuration(job.totalWaitSec)}</strong> (${job.pickupTimeStr})</span>
+                    <span class="text-amber-300">Wait: <strong>${formatDuration(job.totalWaitSec)}</strong> (${job.pickupTimeStr})</span>
                   </div>
                 </div>
               </div>
@@ -650,7 +803,7 @@
               </div>
             </div>
 
-            <!-- Action Controls Bar (Step 02 Status & Step 03 Urgent Button) -->
+            <!-- Action Controls Bar -->
             <div class="mt-3 pt-3 border-t border-slate-900 flex flex-wrap items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="text-[11px] text-slate-400 mr-1">Set Status:</span>
@@ -663,13 +816,15 @@
               </div>
 
               <div>
-                ${!job.urgent && (job.status === 'Queued' || job.status === 'Printing') ? `
+                ${!job.urgent && job.status === 'Queued' ? `
                   <button onclick="openUrgentModal('${job.id}')"
                     class="text-xs bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-lg font-semibold transition flex items-center gap-1">
                     ⚡ Mark Urgent
                   </button>
                 ` : job.urgent ? `
-                  <span class="text-[11px] text-amber-400 font-semibold mono">✓ Urgent Confirmed</span>
+                  <button onclick="clearUrgentStatus('${job.id}')" class="text-[11px] text-amber-400 hover:underline font-semibold mono">
+                    ✓ Urgent Confirmed (Release Slot)
+                  </button>
                 ` : ''}
               </div>
             </div>
@@ -680,18 +835,19 @@
 
     function fillQuickSample() {
       const samples = [
-        { student: 'Vikramaditya S (NIE-CS-034)', doc: 'Cloud_DevOps_Pipeline_Report.pdf', pages: 18, copies: 1, color: 'COLOUR' },
-        { student: 'Ananya Hegde (NIE-AIML-012)', doc: 'Machine_Learning_Research_Paper.pdf', pages: 10, copies: 3, color: 'BW' },
-        { student: 'Rohan Deshmukh (NIE-ISE-055)', doc: 'CyberSecurity_OWASP_Top10_Notes.pdf', pages: 22, copies: 1, color: 'BW' }
+        { student: 'Vikramaditya S (NIE-CS-034)', doc: 'Cloud_DevOps_Pipeline_Report.pdf', pages: 18, copies: 1, color: 'COLOUR', jobType: 'SPIRAL' },
+        { student: 'Ananya Hegde (NIE-AIML-012)', doc: 'Machine_Learning_Research_Paper.pdf', pages: 10, copies: 3, color: 'BW', jobType: 'DUPLEX' },
+        { student: 'Rohan Deshmukh (NIE-ISE-055)', doc: 'CyberSecurity_OWASP_Capstone_Thesis.pdf', pages: 32, copies: 1, color: 'COLOUR', jobType: 'THESIS' }
       ];
       const pick = samples[Math.floor(Math.random() * samples.length)];
       document.getElementById('studentName').value = pick.student;
       document.getElementById('docName').value = pick.doc;
       document.getElementById('pageCount').value = pick.pages;
       document.getElementById('copyCount').value = pick.copies;
+      document.getElementById('jobType').value = pick.jobType;
       document.querySelector(`input[name="colorPref"][value="${pick.color}"]`).checked = true;
       updateLivePreview();
-      showToast('✨ Auto-filled realistic sample document!');
+      showToast('✨ Auto-filled realistic sample with Job Type!');
     }
 
     function showToast(msg) {
@@ -712,7 +868,6 @@
       updateReceiptCard();
     }
 
-    // Initialize on load
     recalculateAll();
   </script>
 </body>
