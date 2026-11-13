@@ -33,16 +33,19 @@
         </div>
       </div>
 
-      <!-- View Switcher Tabs (Addresses "Split customer token view vs shop operator queue") -->
-      <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+      <!-- View Switcher Tabs -->
+      <div class="flex flex-wrap items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold gap-1">
         <button id="tabSplit" onclick="setViewMode('SPLIT')" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition">
-          🖥️ Split View (Judge Demo)
+          🖥️ Split View
         </button>
         <button id="tabCustomer" onclick="setViewMode('CUSTOMER')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
-          🎓 Customer Token View
+          🎓 Customer View
         </button>
         <button id="tabShop" onclick="setViewMode('SHOP')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
-          🏪 Shop Operator Queue
+          🏪 Shop Queue
+        </button>
+        <button id="tabDocs" onclick="setViewMode('DOCS')" class="px-3 py-1.5 rounded-lg text-amber-300 hover:text-white border border-amber-500/30 bg-amber-500/10 transition">
+          📚 6 Doc Cards
         </button>
       </div>
 
@@ -72,12 +75,7 @@
     <!-- Judge 3-Step Interactive Auto-Highlight Bar -->
     <div class="bg-indigo-950/70 border-t border-indigo-900/60 px-4 py-1.5">
       <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between text-xs text-indigo-200 gap-2">
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-amber-300">🎯 JUDGE VERIFICATION CHECKLIST:</span>
-          <button onclick="openDocCardsModal()" class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold transition flex items-center gap-1 text-[11px] cursor-pointer">
-            📋 6 Doc Cards Dossier
-          </button>
-        </div>
+        <span class="font-bold text-amber-300">🎯 JUDGE VERIFICATION CHECKLIST:</span>
         <div class="flex flex-wrap gap-3">
           <span id="stepBadge1" class="px-2 py-0.5 rounded bg-indigo-900/60 border border-indigo-700/50"><strong>Step 01:</strong> Submit Job + Token & Wait Math</span>
           <span id="stepBadge2" class="px-2 py-0.5 rounded bg-indigo-900/60 border border-indigo-700/50"><strong>Step 02:</strong> Change Status & Reorder (↑/↓)</span>
@@ -92,8 +90,6 @@
     
     <!-- LEFT COLUMN: STUDENT SUBMISSION & TOKEN RECEIPT -->
     <section id="customerSection" class="lg:col-span-5 flex flex-col gap-5">
-      
-      <!-- Visible Assumptions Card (MVP Core Requirement #2 + Twist Formula) -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
         <div class="flex items-center justify-between mb-1.5">
           <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
@@ -129,7 +125,6 @@
         </div>
       </div>
 
-      <!-- Student Print Submission Form -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -141,7 +136,6 @@
           </button>
         </div>
 
-        <!-- Validation Error Alert (Rule 03 Compliance) -->
         <div id="validationAlert" class="hidden mb-3 bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs px-3.5 py-2.5 rounded-xl font-medium"></div>
 
         <form id="printForm" onsubmit="handleJobSubmit(event)" novalidate class="space-y-3.5">
@@ -170,7 +164,6 @@
             </div>
           </div>
 
-          <!-- TWIST REQUIREMENT: Job Type & Binding Finishing -->
           <div>
             <label class="block text-xs font-medium text-amber-300 mb-1">Job Type & Finishing (Minute-40 Twist Parameter) *</label>
             <select id="jobType" onchange="updateLivePreview()" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white">
@@ -201,7 +194,6 @@
             </div>
           </div>
 
-          <!-- Pre-Submission Live Estimate Bar -->
           <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-3 flex items-center justify-between text-xs">
             <div>
               <span class="text-slate-400 block">Est. Wait Time (inc. queue):</span>
@@ -220,7 +212,6 @@
         </form>
       </div>
 
-      <!-- Generated Token Receipt Card -->
       <div id="tokenReceiptCard" class="bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-900 border-2 border-indigo-500/60 rounded-2xl p-5 shadow-xl relative overflow-hidden">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
           <div>
@@ -255,14 +246,11 @@
           Math: 2m 10s backlog + 1m 10s job time
         </p>
       </div>
-
     </section>
 
     <!-- RIGHT COLUMN: SHOP OPERATOR LIVE QUEUE & CONTROLS -->
     <section id="shopSection" class="lg:col-span-7 flex flex-col gap-4">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex-1 flex flex-col">
-        
-        <!-- Queue Header, Search & Filters -->
         <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div>
             <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Step 02 & 03 • Shop Operator View</span>
@@ -281,7 +269,6 @@
           </div>
         </div>
 
-        <!-- Single Urgent Constraint Notice Banner -->
         <div id="urgentConstraintBanner" class="mt-3 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs">
           <div class="flex items-center gap-2 text-amber-200">
             <span>⚡</span>
@@ -289,11 +276,51 @@
           </div>
         </div>
 
-        <!-- Shop Queue List -->
-        <div id="queueContainer" class="space-y-3 mt-4 flex-1">
-          <!-- Dynamically populated by JS -->
-        </div>
+        <div id="queueContainer" class="space-y-3 mt-4 flex-1"></div>
+      </div>
+    </section>
 
+    <!-- 6 DOC CARDS SECTION (Hidden unless "6 Doc Cards" tab is clicked) -->
+    <section id="docsSection" class="hidden lg:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="bg-slate-900 border border-amber-500/40 rounded-2xl p-5">
+        <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">DOC-01 • README & QUICKSTART</span>
+        <h3 class="font-bold text-base text-white mt-2">Purpose, Setup & 30s Guide</h3>
+        <p class="text-xs text-slate-300 mt-2 leading-relaxed">Zero-dependency browser prototype (`index.html`) solving campus print shop crowding. No `.env` or external APIs required. Judges can test submission (Left), queue reorder/status (Right), and Urgent Delay confirmation in under 30 seconds.</p>
+      </div>
+      <div class="bg-slate-900 border border-purple-500/40 rounded-2xl p-5">
+        <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">DOC-02 • JUDGE RUNBOOK</span>
+        <h3 class="font-bold text-base text-white mt-2">60-Second Numbered Demo Script</h3>
+        <ol class="text-xs text-slate-300 mt-2 space-y-1 list-decimal list-inside">
+          <li><strong>0-15s (Step 1):</strong> Click Auto-Fill & Submit → Generates `#PQ-105` + wait math.</li>
+          <li><strong>15-35s (Step 2):</strong> Click `↑`/`↓` or change status to `Printing`/`Ready`.</li>
+          <li><strong>35-60s (Step 3 + Twist):</strong> Click `⚡ Mark Urgent` → Confirm affected job delays → Locks `1/1` Urgent slot.</li>
+        </ol>
+      </div>
+      <div class="bg-slate-900 border border-rose-500/40 rounded-2xl p-5">
+        <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">DOC-03 • FIVE-TEST CHECKLIST</span>
+        <h3 class="font-bold text-base text-white mt-2">5 Verification Cases</h3>
+        <ul class="text-xs text-slate-300 mt-2 space-y-1">
+          <li>✅ <strong>1. Invalid Input:</strong> `0` pages blocks submit with validation alert.</li>
+          <li>✅ <strong>2. Happy Path:</strong> Valid job generates token & updates queue.</li>
+          <li>✅ <strong>3. Twist Check:</strong> Urgent modal lists delayed jobs + locks 2nd urgent job.</li>
+          <li>✅ <strong>4. Reset/Refresh:</strong> `F5` keeps state; `↺ Reset` restores defaults.</li>
+          <li>✅ <strong>5. Boundary:</strong> `500` pages × `100` copies computes cleanly.</li>
+        </ul>
+      </div>
+      <div class="bg-slate-900 border border-amber-500/40 rounded-2xl p-5">
+        <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">DOC-04 • USER QUICKSTART</span>
+        <h3 class="font-bold text-base text-white mt-2">4-Step First-Time User Guide</h3>
+        <p class="text-xs text-slate-300 mt-2 leading-relaxed"><strong>1.</strong> Enter Roll No, Doc Name, Pages, Copies, Job Type & Colour. <strong>2.</strong> Check live wait preview. <strong>3.</strong> Submit to get Token ID & pickup time. <strong>4. Recovery:</strong> Click `Release Slot` to undo urgent priority or `↺ Reset` to restore demo queue.</p>
+      </div>
+      <div class="bg-slate-900 border border-purple-500/40 rounded-2xl p-5">
+        <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">DOC-05 • DATA & PRIVACY NOTE</span>
+        <h3 class="font-bold text-base text-white mt-2">Local Storage & Zero Secrets</h3>
+        <p class="text-xs text-slate-300 mt-2 leading-relaxed">Stores job metadata (`token`, `student`, `docName`, `pages`, `copies`, `jobType`, `status`) solely in browser `localStorage`. Uses 100% fictional student data. Zero network calls, zero API keys, and zero `.env` secrets.</p>
+      </div>
+      <div class="bg-slate-900 border border-rose-500/40 rounded-2xl p-5">
+        <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">DOC-06 • HANDOFF & LIMITATIONS</span>
+        <h3 class="font-bold text-base text-white mt-2">Architecture & Next 3 Upgrades</h3>
+        <p class="text-xs text-slate-300 mt-2 leading-relaxed">Core logic in `computeQueueMetrics()` & `confirmMarkUrgent()`. Mocked: binary PDF upload & hardware print drivers. Top 3 production upgrades: 1) WebSocket live sync, 2) `pdf.js` auto page-count, 3) UPI QR & WhatsApp ready alerts.</p>
       </div>
     </section>
   </main>
@@ -316,15 +343,12 @@
         Promoting <strong id="modalTokenName" class="text-amber-300 mono">#PQ-103</strong> (<span id="modalDocName" class="text-white">Document.pdf</span>) to the <strong>#1 priority waiting slot</strong> will directly delay the following jobs currently ahead of it:
       </p>
 
-      <!-- List of Delayed Jobs (Twist Requirement) -->
       <div class="bg-slate-950 border border-rose-500/40 rounded-xl p-3.5 mb-3">
         <div class="flex items-center justify-between text-xs font-bold text-rose-300 mb-2">
           <span>⚠️ AFFECTED JOBS IN QUEUE:</span>
           <span id="modalDelayAmount" class="mono bg-rose-500/20 px-2 py-0.5 rounded">+2m 10s delay each</span>
         </div>
-        <div id="modalAffectedList" class="space-y-1.5 max-h-32 overflow-y-auto text-xs">
-          <!-- Populated dynamically -->
-        </div>
+        <div id="modalAffectedList" class="space-y-1.5 max-h-32 overflow-y-auto text-xs"></div>
       </div>
 
       <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 mb-4 text-xs space-y-1">
@@ -338,7 +362,6 @@
         </div>
       </div>
 
-      <!-- Explicit Operator Confirmation Checkbox -->
       <label class="flex items-start gap-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 mb-4 cursor-pointer select-none">
         <input id="confirmDelayCheckbox" type="checkbox" onchange="toggleUrgentConfirmBtn()" class="mt-0.5 w-4 h-4 accent-amber-500 rounded" />
         <span class="text-xs text-amber-100 leading-snug">
@@ -358,183 +381,6 @@
     </div>
   </div>
 
-  <!-- 6 DOC CARDS DOSSIER MODAL -->
-  <div id="docCardsModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-slate-900 border-2 border-indigo-500/80 rounded-2xl max-w-4xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/70">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-lg">📋</div>
-          <div>
-            <h3 class="font-bold text-white text-base flex items-center gap-2">
-              <span>VibeSprint 1.0 — 6 Documentation Cards</span>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">100% INVOLVED & READY</span>
-            </h3>
-            <p class="text-xs text-slate-400">All challenge cards fully satisfied and aligned with PS-24 (PrintQ)</p>
-          </div>
-        </div>
-        <button onclick="closeDocCardsModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-sm transition">
-          ✕
-        </button>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <div class="flex overflow-x-auto border-b border-slate-800 bg-slate-950 px-4 py-2 gap-2 text-xs">
-        <button id="docTabBtn1" onclick="switchDocTab(1)" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold whitespace-nowrap transition">
-          DOC-01: README
-        </button>
-        <button id="docTabBtn2" onclick="switchDocTab(2)" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold whitespace-nowrap transition">
-          DOC-02: Runbook
-        </button>
-        <button id="docTabBtn3" onclick="switchDocTab(3)" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold whitespace-nowrap transition">
-          DOC-03: 5 Tests
-        </button>
-        <button id="docTabBtn4" onclick="switchDocTab(4)" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold whitespace-nowrap transition">
-          DOC-04: User Guide
-        </button>
-        <button id="docTabBtn5" onclick="switchDocTab(5)" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold whitespace-nowrap transition">
-          DOC-05: Privacy
-        </button>
-        <button id="docTabBtn6" onclick="switchDocTab(6)" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold whitespace-nowrap transition">
-          DOC-06: Handoff
-        </button>
-      </div>
-
-      <!-- Scrollable Tab Content Area -->
-      <div class="flex-1 overflow-y-auto p-6 space-y-4 text-xs text-slate-300 leading-relaxed">
-        <!-- DOC-01 Panel -->
-        <div id="docTabContent1" class="space-y-4">
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-            <span class="text-amber-400 font-bold uppercase tracking-wider text-[11px] block mb-1">DOC-01 • README & Quickstart</span>
-            <h4 class="text-white font-bold text-sm mb-2">Project Purpose & Features</h4>
-            <p class="mb-2"><strong>PrintQ (PS-24)</strong> eliminates campus xerox shop bottlenecks with live digital tokens, transparent wait estimations, and priority rush-hour queue control.</p>
-            <ul class="list-disc pl-4 space-y-1 text-slate-300">
-              <li><strong>Zero-Dependency Launch:</strong> No npm/Node/Python or .env secrets. Double-click <code class="text-indigo-300">index.html</code> to run anywhere.</li>
-              <li><strong>Split-View Design:</strong> Left side student token view + Right side shop operator queue.</li>
-              <li><strong>Demo Data:</strong> 4 pre-seeded jobs (#PQ-101 to #PQ-104) with different colors, pages, and bindings.</li>
-              <li><strong>30-Second Judge Action:</strong> Click <code class="text-amber-300">✨ Auto-Fill Sample</code> → <code class="text-amber-300">🖨️ Submit Print Job</code> → Click <code class="text-amber-300">⚡ Mark Urgent</code> on #PQ-103.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- DOC-02 Panel -->
-        <div id="docTabContent2" class="hidden space-y-4">
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-            <span class="text-amber-400 font-bold uppercase tracking-wider text-[11px] block mb-1">DOC-02 • Judge Runbook</span>
-            <h4 class="text-white font-bold text-sm mb-2">60-Second Timed Walkthrough</h4>
-            <div class="space-y-2.5">
-              <div class="flex gap-3 items-start border-l-2 border-indigo-500 pl-3">
-                <span class="font-mono text-indigo-400 font-bold">00-15s:</span>
-                <div><strong>T+0s: Check Starting State & Submit:</strong> Note 4 default jobs, Rush-Hour 1.25x ON. Click "✨ Auto-Fill Sample" then "🖨️ Submit Print Job". Token #PQ-105 is issued.</div>
-              </div>
-              <div class="flex gap-3 items-start border-l-2 border-indigo-500 pl-3">
-                <span class="font-mono text-indigo-400 font-bold">15-30s:</span>
-                <div><strong>T+15s: Reorder & Status Controls:</strong> In shop queue, click ↑ on #PQ-103 or change status to "Printing". All downstream wait times dynamically update.</div>
-              </div>
-              <div class="flex gap-3 items-start border-l-2 border-amber-500 pl-3">
-                <span class="font-mono text-amber-400 font-bold">30-45s:</span>
-                <div><strong>T+30s: Minute-40 Twist Trigger:</strong> Click "⚡ Mark Urgent" on #PQ-103. Delay confirmation modal pops up with exact downstream job delays (+2m 10s). Check confirmation box and confirm.</div>
-              </div>
-              <div class="flex gap-3 items-start border-l-2 border-emerald-500 pl-3">
-                <span class="font-mono text-emerald-400 font-bold">45-60s:</span>
-                <div><strong>T+45s: Twist Enforcement & Simulated Features:</strong> Note 1/1 Urgent slot locked; attempts to mark a second urgent job are blocked with a toast. Printing progress is simulated at 55% completion.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- DOC-03 Panel -->
-        <div id="docTabContent3" class="hidden space-y-3">
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-            <span class="text-amber-400 font-bold uppercase tracking-wider text-[11px] block mb-1">DOC-03 • Five-Test Checklist</span>
-            <h4 class="text-white font-bold text-sm mb-3">5 Manual Tests with Steps & Expected Results</h4>
-            <div class="space-y-2">
-              <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                <span class="text-rose-400 font-bold">1. Invalid Input:</span> Set Pages to 0 and submit → <em class="text-slate-300">Alert banner displays error, form blocked, no token issued.</em>
-              </div>
-              <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                <span class="text-emerald-400 font-bold">2. Happy Path:</span> Click Auto-Fill Sample and submit → <em class="text-slate-300">Token #PQ-105 created, cost calculated, queue updated.</em>
-              </div>
-              <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                <span class="text-amber-400 font-bold">3. Twist Check:</span> Click Mark Urgent on #PQ-103, check delay box, confirm → <em class="text-slate-300">Moves to #1 waiting, downstream jobs show "⚠️ Delayed +Xm Ys".</em>
-              </div>
-              <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                <span class="text-sky-400 font-bold">4. Reset/Refresh:</span> Modify queue then click ↺ Reset (or reload) → <em class="text-slate-300">State safely resets to initial 4 default jobs and slot 0/1.</em>
-              </div>
-              <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                <span class="text-purple-400 font-bold">5. Boundary Case:</span> When 1/1 slot is full, click urgent on another job → <em class="text-slate-300">Button locked with "🔒 1/1 Urgent Active", toast rejects override.</em>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- DOC-04 Panel -->
-        <div id="docTabContent4" class="hidden space-y-4">
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-            <span class="text-amber-400 font-bold uppercase tracking-wider text-[11px] block mb-1">DOC-04 • User Quickstart</span>
-            <h4 class="text-white font-bold text-sm mb-2">4-Step Guide for First-Time Users</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-              <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                <strong class="text-indigo-400 block mb-1">1. What It Does:</strong>
-                Replaces crowded xerox counters with automated tokens and live wait countdowns.
-              </div>
-              <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                <strong class="text-indigo-400 block mb-1">2. What Input to Provide:</strong>
-                Student Name/Roll No., Document Title, Page count (1–500), Copies (1–100), B&W or Colour, and Finishing (Loose, Duplex, Spiral, Thesis).
-              </div>
-              <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                <strong class="text-indigo-400 block mb-1">3. What Result to Expect:</strong>
-                A digital token receipt with your token ID, queue position, estimated pickup time, and pricing.
-              </div>
-              <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                <strong class="text-indigo-400 block mb-1">4. Recover from a Mistake:</strong>
-                Inform operator to change status or reorder, or click the header ↺ Reset button to start over cleanly.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- DOC-05 Panel -->
-        <div id="docTabContent5" class="hidden space-y-4">
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-            <span class="text-amber-400 font-bold uppercase tracking-wider text-[11px] block mb-1">DOC-05 • Data & Privacy Note</span>
-            <h4 class="text-white font-bold text-sm mb-2">Data Fields, Storage & Zero Secrets Audit</h4>
-            <div class="space-y-2 text-slate-300">
-              <p><strong>Stored Fields:</strong> <code class="text-indigo-300">id, token, student, docName, pages, copies, color, jobType, status, urgent, delayedBySec</code>.</p>
-              <p><strong>Local Storage:</strong> Stored strictly in browser <code class="text-indigo-300">localStorage</code> key <code class="text-indigo-300">PRINTQ_PS24_FINAL_V3</code>.</p>
-              <p><strong>Demo/Fake Data:</strong> All student names and roll numbers (e.g., NIE-CS-061) are completely fictional mock data.</p>
-              <p><strong>Zero External Transmission:</strong> Document file contents are never uploaded or transmitted. 0 KB network data sent anywhere.</p>
-              <p><strong>Secrets Audit:</strong> 100% verified — zero API keys, zero environment variables, zero private credentials.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- DOC-06 Panel -->
-        <div id="docTabContent6" class="hidden space-y-4">
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-            <span class="text-amber-400 font-bold uppercase tracking-wider text-[11px] block mb-1">DOC-06 • Handoff & Limitations</span>
-            <h4 class="text-white font-bold text-sm mb-2">Architecture, Mocks & Deployment Roadmap</h4>
-            <div class="space-y-2 text-slate-300">
-              <p><strong>Main File:</strong> Single-page architecture in <code class="text-indigo-300">index.html</code> with embedded Tailwind CSS, state engine, and event listeners.</p>
-              <p><strong>Core Logic:</strong> Functions <code class="text-indigo-300">calcJobDurationSec()</code>, <code class="text-indigo-300">computeQueueMetrics()</code>, and <code class="text-indigo-300">confirmMarkUrgent()</code>.</p>
-              <p><strong>Reset Mechanism:</strong> Calling <code class="text-indigo-300">resetDemoData()</code> or clicking ↺ Reset purges custom items and restores canonical defaults.</p>
-              <p><strong>Mocked Features:</strong> Hardware printer driver spooling, binary document byte processing, and payment gateway transactions.</p>
-              <p><strong>Top 3 Production Improvements:</strong> (1) Real-time multi-device WebSocket sync, (2) Hardware IPP/CUPS printer telemetry, (3) University LDAP SSO & dynamic UPI QR payments.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="px-6 py-3 border-t border-slate-800 bg-slate-950/90 flex items-center justify-between text-xs">
-        <span class="text-slate-400">All 6 Doc Cards are also fully documented in <strong class="text-indigo-300">README.md</strong></span>
-        <button onclick="closeDocCardsModal()" class="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition">
-          Close Dossier
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast Notification -->
   <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 border border-indigo-500/60 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-medium hidden items-center gap-2 z-50">
     <span id="toastMsg">Action completed</span>
@@ -545,7 +391,6 @@
     let selectedUrgentJobId = null;
     let lastHighlightedJobId = 'job-3';
     let isRushHour = true;
-    let currentViewMode = 'SPLIT';
 
     const JOB_TYPES = {
       STANDARD: { label: 'Loose Sheets', extraSec: 0, extraCost: 0 },
@@ -555,83 +400,34 @@
     };
 
     const DEFAULT_JOBS = [
-      {
-        id: 'job-1',
-        token: '#PQ-101',
-        student: 'Aditya Nair (NIE-ISE-014)',
-        docName: 'DBMS_Normalized_Schema_Diagram.pdf',
-        pages: 8,
-        copies: 1,
-        color: 'COLOUR',
-        jobType: 'STANDARD',
-        status: 'Printing',
-        urgent: false,
-        delayedBySec: 0
-      },
-      {
-        id: 'job-2',
-        token: '#PQ-102',
-        student: 'Sneha Kulkarni (NIE-CS-061)',
-        docName: 'ADA_Assignment_Graph_Theory.pdf',
-        pages: 15,
-        copies: 2,
-        color: 'BW',
-        jobType: 'DUPLEX',
-        status: 'Queued',
-        urgent: false,
-        delayedBySec: 0
-      },
-      {
-        id: 'job-3',
-        token: '#PQ-103',
-        student: 'Karthik Rao (NIE-CS-088)',
-        docName: 'OS_MiniProject_Report.pdf',
-        pages: 12,
-        copies: 1,
-        color: 'BW',
-        jobType: 'SPIRAL',
-        status: 'Queued',
-        urgent: false,
-        delayedBySec: 0
-      },
-      {
-        id: 'job-4',
-        token: '#PQ-100',
-        student: 'Meera Joshi (NIE-ECE-027)',
-        docName: 'VLSI_Lab_Observation_Sheet.pdf',
-        pages: 6,
-        copies: 1,
-        color: 'BW',
-        jobType: 'STANDARD',
-        status: 'Ready',
-        urgent: false,
-        delayedBySec: 0
-      }
+      { id: 'job-1', token: '#PQ-101', student: 'Aditya Nair (NIE-ISE-014)', docName: 'DBMS_Normalized_Schema_Diagram.pdf', pages: 8, copies: 1, color: 'COLOUR', jobType: 'STANDARD', status: 'Printing', urgent: false, delayedBySec: 0 },
+      { id: 'job-2', token: '#PQ-102', student: 'Sneha Kulkarni (NIE-CS-061)', docName: 'ADA_Assignment_Graph_Theory.pdf', pages: 15, copies: 2, color: 'BW', jobType: 'DUPLEX', status: 'Queued', urgent: false, delayedBySec: 0 },
+      { id: 'job-3', token: '#PQ-103', student: 'Karthik Rao (NIE-CS-088)', docName: 'OS_MiniProject_Report.pdf', pages: 12, copies: 1, color: 'BW', jobType: 'SPIRAL', status: 'Queued', urgent: false, delayedBySec: 0 },
+      { id: 'job-4', token: '#PQ-100', student: 'Meera Joshi (NIE-ECE-027)', docName: 'VLSI_Lab_Observation_Sheet.pdf', pages: 6, copies: 1, color: 'BW', jobType: 'STANDARD', status: 'Ready', urgent: false, delayedBySec: 0 }
     ];
 
     let jobs = loadJobs();
 
     function loadJobs() {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try { return JSON.parse(saved); } catch (e) {}
-      }
+      if (saved) { try { return JSON.parse(saved); } catch (e) {} }
       return JSON.parse(JSON.stringify(DEFAULT_JOBS));
     }
 
-    function saveJobs() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
-    }
+    function saveJobs() { localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs)); }
 
     function setViewMode(mode) {
-      currentViewMode = mode;
       const cust = document.getElementById('customerSection');
       const shop = document.getElementById('shopSection');
+      const docs = document.getElementById('docsSection');
       const tSplit = document.getElementById('tabSplit');
       const tCust = document.getElementById('tabCustomer');
       const tShop = document.getElementById('tabShop');
+      const tDocs = document.getElementById('tabDocs');
 
       [tSplit, tCust, tShop].forEach(b => b.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition');
+      tDocs.className = 'px-3 py-1.5 rounded-lg text-amber-300 hover:text-white border border-amber-500/30 bg-amber-500/10 transition';
+      docs.className = 'hidden';
 
       if (mode === 'SPLIT') {
         cust.className = 'lg:col-span-5 flex flex-col gap-5';
@@ -645,14 +441,17 @@
         cust.className = 'hidden';
         shop.className = 'lg:col-span-12 flex flex-col gap-4';
         tShop.className = 'px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition';
+      } else if (mode === 'DOCS') {
+        cust.className = 'hidden';
+        shop.className = 'hidden';
+        docs.className = 'lg:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+        tDocs.className = 'px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold transition';
       }
     }
 
     function markStepVerified(stepNum) {
       const el = document.getElementById('stepBadge' + stepNum);
-      if (el) {
-        el.className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold';
-      }
+      if (el) el.className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold';
     }
 
     function resetDemoData() {
@@ -672,12 +471,10 @@
         btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-amber-500/20 border-amber-500/50 text-amber-300';
         btn.innerHTML = '<span>🔥 Rush-Hour: ON (1.25x)</span>';
         badge.textContent = 'Rush 1.25x';
-        badge.className = 'text-[11px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold mono';
       } else {
         btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-slate-800 border-slate-700 text-slate-300';
         btn.innerHTML = '<span>⚡ Normal Hours (1.0x)</span>';
         badge.textContent = 'Normal 1.0x';
-        badge.className = 'text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold mono';
       }
       recalculateAll();
       showToast(isRushHour ? '🔥 Rush-Hour Multiplier (1.25x) Activated!' : 'Standard Queue Timing (1.0x) Activated');
@@ -696,8 +493,7 @@
       const perPage = job.color === 'COLOUR' ? color : bw;
       const typeInfo = JOB_TYPES[job.jobType] || JOB_TYPES.STANDARD;
       const totalPages = job.pages * job.copies;
-      const rawSec = (totalPages * perPage) + setup + typeInfo.extraSec;
-      return Math.round(rawSec * rushFactor);
+      return Math.round(((totalPages * perPage) + setup + typeInfo.extraSec) * rushFactor);
     }
 
     function calcJobCost(pages, copies, color, jobType) {
@@ -729,15 +525,12 @@
 
         if (job.status === 'Printing') {
           const remaining = Math.round(ownDurationSec * 0.55);
-          backlogAheadSec = 0;
           totalWaitSec = remaining;
           cumulativeBacklogSec += remaining;
         } else if (job.status === 'Queued') {
           backlogAheadSec = cumulativeBacklogSec;
           totalWaitSec = backlogAheadSec + ownDurationSec;
           cumulativeBacklogSec += ownDurationSec;
-        } else {
-          totalWaitSec = 0;
         }
 
         return {
@@ -765,11 +558,8 @@
 
       const newJobSec = calcJobDurationSec({ pages, copies, color, jobType });
       const totalWait = activeBacklog + newJobSec;
-      const totalPages = pages * copies;
-      const cost = calcJobCost(pages, copies, color, jobType);
-
       document.getElementById('liveWaitPreview').textContent = `~${formatDuration(totalWait)} (Pickup ${formatPickupTime(totalWait)})`;
-      document.getElementById('liveCostPreview').textContent = `${totalPages} pgs • ₹${cost}`;
+      document.getElementById('liveCostPreview').textContent = `${pages * copies} pgs • ₹${calcJobCost(pages, copies, color, jobType)}`;
     }
 
     function handleJobSubmit(e) {
@@ -790,26 +580,11 @@
       alertBox.classList.add('hidden');
 
       const nextNum = 101 + jobs.length;
-      const newJob = {
-        id: 'job-' + Date.now(),
-        token: `#PQ-${nextNum}`,
-        student,
-        docName,
-        pages,
-        copies,
-        color,
-        jobType,
-        status: 'Queued',
-        urgent: false,
-        delayedBySec: 0
-      };
+      const newJob = { id: 'job-' + Date.now(), token: `#PQ-${nextNum}`, student, docName, pages, copies, color, jobType, status: 'Queued', urgent: false, delayedBySec: 0 };
 
       const firstDoneIdx = jobs.findIndex(j => j.status === 'Ready' || j.status === 'Completed');
-      if (firstDoneIdx === -1) {
-        jobs.push(newJob);
-      } else {
-        jobs.splice(firstDoneIdx, 0, newJob);
-      }
+      if (firstDoneIdx === -1) jobs.push(newJob);
+      else jobs.splice(firstDoneIdx, 0, newJob);
 
       lastHighlightedJobId = newJob.id;
       markStepVerified(1);
@@ -843,9 +618,7 @@
       const job = jobs.find(j => j.id === jobId);
       if (!job) return;
       job.status = newStatus;
-      if (newStatus === 'Ready' || newStatus === 'Completed') {
-        job.urgent = false;
-      }
+      if (newStatus === 'Ready' || newStatus === 'Completed') job.urgent = false;
       lastHighlightedJobId = jobId;
       markStepVerified(2);
       saveJobs();
@@ -858,11 +631,9 @@
       if (idx === -1) return;
       const targetIdx = idx + direction;
       if (targetIdx < 0 || targetIdx >= jobs.length) return;
-
       const temp = jobs[idx];
       jobs[idx] = jobs[targetIdx];
       jobs[targetIdx] = temp;
-
       lastHighlightedJobId = jobId;
       markStepVerified(2);
       saveJobs();
@@ -894,7 +665,7 @@
       const listEl = document.getElementById('modalAffectedList');
 
       if (affectedJobs.length === 0) {
-        listEl.innerHTML = `<div class="text-slate-300 py-1">This job is currently at the front of the waiting queue (#1 waiting). Marking it urgent locks its priority slot and delays any subsequent jobs by +${formatDuration(job.ownDurationSec)}.</div>`;
+        listEl.innerHTML = `<div class="text-slate-300 py-1">This job is at the front of the waiting queue (#1 waiting). Marking it urgent locks its priority slot and delays subsequent jobs by +${formatDuration(job.ownDurationSec)}.</div>`;
       } else {
         listEl.innerHTML = affectedJobs.map(aj => `
           <div class="flex items-center justify-between bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800">
@@ -917,8 +688,7 @@
     }
 
     function toggleUrgentConfirmBtn() {
-      const checked = document.getElementById('confirmDelayCheckbox').checked;
-      document.getElementById('confirmUrgentBtn').disabled = !checked;
+      document.getElementById('confirmUrgentBtn').disabled = !document.getElementById('confirmDelayCheckbox').checked;
     }
 
     function closeUrgentModal() {
@@ -939,9 +709,7 @@
       const printingIdx = jobs.findIndex(j => j.status === 'Printing');
       const insertAt = printingIdx >= 0 ? printingIdx + 1 : 0;
       for (let i = insertAt; i < idx; i++) {
-        if (jobs[i].status === 'Queued') {
-          jobs[i].delayedBySec = (jobs[i].delayedBySec || 0) + promotedDuration;
-        }
+        if (jobs[i].status === 'Queued') jobs[i].delayedBySec = (jobs[i].delayedBySec || 0) + promotedDuration;
       }
 
       const [urgentJob] = jobs.splice(idx, 1);
@@ -1006,14 +774,13 @@
           'Ready': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
           'Completed': 'bg-slate-800 text-slate-400 border-slate-700'
         };
-
         const isLockedByOtherUrgent = activeUrgentJob && activeUrgentJob.id !== job.id;
 
         return `
           <div class="bg-slate-950 border ${job.urgent ? 'urgent-card border-amber-500' : 'border-slate-800'} rounded-xl p-4 transition hover:border-slate-700">
             <div class="flex flex-wrap items-start justify-between gap-2">
               <div class="flex items-start gap-3">
-                <button onclick="lastHighlightedJobId='${job.id}'; updateReceiptCard();" class="mono font-extrabold text-base px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-indigo-400 hover:border-indigo-500 transition" title="Click to inspect token receipt">
+                <button onclick="lastHighlightedJobId='${job.id}'; updateReceiptCard();" class="mono font-extrabold text-base px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-indigo-400 hover:border-indigo-500 transition">
                   ${job.token}
                 </button>
                 <div>
@@ -1038,16 +805,12 @@
                 </div>
               </div>
 
-              <!-- Reorder Up/Down Controls -->
               <div class="flex items-center gap-1">
-                <button onclick="moveJob('${job.id}', -1)" ${realIdx === 0 ? 'disabled' : ''}
-                  class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-30 border border-slate-800 text-xs" title="Move Up in Queue">↑</button>
-                <button onclick="moveJob('${job.id}', 1)" ${realIdx === jobs.length - 1 ? 'disabled' : ''}
-                  class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-30 border border-slate-800 text-xs" title="Move Down in Queue">↓</button>
+                <button onclick="moveJob('${job.id}', -1)" ${realIdx === 0 ? 'disabled' : ''} class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-30 border border-slate-800 text-xs">↑</button>
+                <button onclick="moveJob('${job.id}', 1)" ${realIdx === jobs.length - 1 ? 'disabled' : ''} class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-30 border border-slate-800 text-xs">↓</button>
               </div>
             </div>
 
-            <!-- Action Controls Bar -->
             <div class="mt-3 pt-3 border-t border-slate-900 flex flex-wrap items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="text-[11px] text-slate-400 mr-1">Set Status:</span>
@@ -1061,13 +824,11 @@
 
               <div>
                 ${!job.urgent && job.status === 'Queued' && !isLockedByOtherUrgent ? `
-                  <button onclick="openUrgentModal('${job.id}')"
-                    class="text-xs bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-lg font-semibold transition flex items-center gap-1">
+                  <button onclick="openUrgentModal('${job.id}')" class="text-xs bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-lg font-semibold transition flex items-center gap-1">
                     ⚡ Mark Urgent
                   </button>
                 ` : !job.urgent && job.status === 'Queued' && isLockedByOtherUrgent ? `
-                  <button onclick="openUrgentModal('${job.id}')"
-                    class="text-xs bg-slate-900 text-slate-500 border border-slate-800 px-3 py-1 rounded-lg font-medium cursor-not-allowed" title="Only 1 job can be marked urgent at a time">
+                  <button onclick="openUrgentModal('${job.id}')" class="text-xs bg-slate-900 text-slate-500 border border-slate-800 px-3 py-1 rounded-lg font-medium cursor-not-allowed">
                     🔒 1/1 Urgent Active
                   </button>
                 ` : job.urgent ? `
@@ -1105,44 +866,10 @@
       t.classList.remove('hidden');
       t.classList.add('flex');
       clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => {
-        t.classList.add('hidden');
-        t.classList.remove('flex');
-      }, 3200);
+      window._toastTimer = setTimeout(() => { t.classList.add('hidden'); t.classList.remove('flex'); }, 3200);
     }
 
-    function openDocCardsModal() {
-      const modal = document.getElementById('docCardsModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeDocCardsModal() {
-      const modal = document.getElementById('docCardsModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    function switchDocTab(tabNum) {
-      for (let i = 1; i <= 6; i++) {
-        const btn = document.getElementById('docTabBtn' + i);
-        const content = document.getElementById('docTabContent' + i);
-        if (i === tabNum) {
-          btn.className = 'px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold whitespace-nowrap transition';
-          content.classList.remove('hidden');
-        } else {
-          btn.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold whitespace-nowrap transition';
-          content.classList.add('hidden');
-        }
-      }
-    }
-
-    function recalculateAll() {
-      updateLivePreview();
-      renderQueue();
-      updateReceiptCard();
-    }
-
+    function recalculateAll() { updateLivePreview(); renderQueue(); updateReceiptCard(); }
     recalculateAll();
   </script>
 </body>
