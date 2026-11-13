@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PrintQ — Campus Print Queue & Token System (PS-24)</title>
+  <title>PrintQ — Smart Campus Print Queue & Token System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -30,11 +30,11 @@
             <h1 class="font-bold text-lg tracking-tight">PrintQ</h1>
             <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold">PS-24</span>
           </div>
-          <p class="text-xs text-slate-400">Campus Print Queue & Rush-Hour Estimator</p>
+          <p class="text-xs text-slate-400">Campus Print Queue & Live Pickup Estimator</p>
         </div>
       </div>
 
-      <!-- Clean View Switcher Tabs -->
+      <!-- View Switcher Tabs -->
       <div class="flex flex-wrap items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold gap-1">
         <button id="tabSplit" onclick="setViewMode('SPLIT')" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition">
           🖥️ Split View
@@ -50,15 +50,11 @@
         </button>
       </div>
 
-      <!-- Essential Controls Only -->
+      <!-- Essential Global Controls -->
       <div class="flex flex-wrap items-center gap-2">
-        <button id="rushHourBtn" onclick="toggleRushHour()" class="px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-amber-500/20 border-amber-500/50 text-amber-300">
-          🔥 Rush-Hour: ON (1.25x)
-        </button>
-
         <button id="simToggleBtn" onclick="toggleLiveSim()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-emerald-500/15 border-emerald-500/40 text-emerald-300" title="Auto-advances Printing job to Ready when timer hits 0s">
           <span id="simDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span id="simToggleText">Auto-Print Timer: ON</span>
+          <span id="simToggleText">Live Printer: ON</span>
         </button>
 
         <button onclick="resetDemoData()" class="text-xs bg-slate-800 hover:bg-slate-700 text-white font-semibold px-3 py-1.5 rounded-xl border border-slate-700 transition">
@@ -71,50 +67,14 @@
   <!-- Main Content Grid -->
   <main class="max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
     
-    <!-- LEFT COLUMN: STUDENT SUBMISSION & TOKEN RECEIPT (5 Cols) -->
+    <!-- LEFT COLUMN: CLEAN STUDENT SUBMISSION & TOKEN RECEIPT (5 Cols) -->
     <section id="customerSection" class="lg:col-span-5 flex flex-col gap-5">
       
-      <!-- 1. Visible Estimation Assumptions -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
-        <div class="flex items-center justify-between mb-1.5">
-          <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400">
-            ⚙️ Visible Estimation Assumptions
-          </h2>
-          <span id="rushMultiplierBadge" class="text-[11px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold mono">Rush 1.25x</span>
-        </div>
-        <p class="text-xs text-slate-300 mb-3">
-          Wait = <strong>Queue Backlog</strong> + <strong>[(Pages × Copies × Speed) + Finishing] × Rush</strong>
-        </p>
-        <div class="grid grid-cols-3 gap-2 text-center bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-          <div>
-            <label class="text-[10px] text-slate-400 block">B&W Speed</label>
-            <div class="flex items-center justify-center gap-1 mt-0.5">
-              <input id="assumpBW" type="number" value="4" min="1" max="30" onchange="recalculateAll()" class="w-12 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center mono text-xs font-bold text-white">
-              <span class="text-[11px] text-slate-400">s/pg</span>
-            </div>
-          </div>
-          <div>
-            <label class="text-[10px] text-slate-400 block">Colour Speed</label>
-            <div class="flex items-center justify-center gap-1 mt-0.5">
-              <input id="assumpColor" type="number" value="10" min="2" max="60" onchange="recalculateAll()" class="w-12 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center mono text-xs font-bold text-indigo-300">
-              <span class="text-[11px] text-slate-400">s/pg</span>
-            </div>
-          </div>
-          <div>
-            <label class="text-[10px] text-slate-400 block">Base Setup</label>
-            <div class="flex items-center justify-center gap-1 mt-0.5">
-              <input id="assumpSetup" type="number" value="15" min="5" max="120" onchange="recalculateAll()" class="w-12 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center mono text-xs font-bold text-emerald-300">
-              <span class="text-[11px] text-slate-400">sec</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. Student Print Submission Form -->
+      <!-- 1. Student Print Submission Form -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Step 01 • Student View</span>
+            <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Customer Portal</span>
             <h2 class="text-lg font-bold text-white">Submit Print Job</h2>
           </div>
           <button type="button" onclick="fillQuickSample()" class="text-xs bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-lg font-medium transition">
@@ -127,31 +87,31 @@
         <form id="printForm" onsubmit="handleJobSubmit(event)" novalidate class="space-y-3.5">
           <div>
             <label class="block text-xs font-medium text-slate-300 mb-1">Student Name & Roll No. *</label>
-            <input id="studentName" type="text" required value="Basavaraj (NIE-AIML-019)"
+            <input id="studentName" type="text" required value="Basavaraj (NIE-AIML-019)" placeholder="e.g., Aarav Sharma (NIE-CS-042)"
               class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm text-white" />
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Document Name *</label>
-            <input id="docName" type="text" required value="Compiler_Design_Lab_Manual.pdf"
+            <label class="block text-xs font-medium text-slate-300 mb-1">Document Filename *</label>
+            <input id="docName" type="text" required value="Compiler_Design_Lab_Manual.pdf" placeholder="e.g., Project_Report.pdf"
               class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm text-white" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Pages (1–500) *</label>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Pages per Copy (1–500) *</label>
               <input id="pageCount" type="number" min="1" max="500" required value="12" oninput="updateLivePreview()"
                 class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm text-white mono" />
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Copies (1–100) *</label>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Number of Copies (1–100) *</label>
               <input id="copyCount" type="number" min="1" max="100" required value="2" oninput="updateLivePreview()"
                 class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm text-white mono" />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-amber-300 mb-1">Job Type (Minute-40 Twist) *</label>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Finishing & Binding Type *</label>
             <select id="jobType" onchange="updateLivePreview()" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl px-3.5 py-2.5 text-sm text-white">
               <option value="STANDARD">📄 Standard Loose Sheets (+0s • ₹0)</option>
               <option value="DUPLEX">🔄 Duplex Double-Sided (+10s • ₹0)</option>
@@ -167,14 +127,14 @@
                 <input type="radio" name="colorPref" value="BW" checked onchange="updateLivePreview()" class="peer hidden" />
                 <div class="border border-slate-800 peer-checked:border-indigo-500 peer-checked:bg-indigo-600/15 bg-slate-950 rounded-xl p-2.5 text-center transition">
                   <div class="font-semibold text-sm text-white">⚫ Black & White</div>
-                  <div class="text-[11px] text-slate-400">₹2 / page</div>
+                  <div class="text-[11px] text-slate-400">₹2 / page • Fast</div>
                 </div>
               </label>
               <label class="cursor-pointer">
                 <input type="radio" name="colorPref" value="COLOUR" onchange="updateLivePreview()" class="peer hidden" />
                 <div class="border border-slate-800 peer-checked:border-indigo-500 peer-checked:bg-indigo-600/15 bg-slate-950 rounded-xl p-2.5 text-center transition">
                   <div class="font-semibold text-sm text-white">🌈 Full Colour</div>
-                  <div class="text-[11px] text-slate-400">₹10 / page</div>
+                  <div class="text-[11px] text-slate-400">₹10 / page • High-Res</div>
                 </div>
               </label>
             </div>
@@ -182,7 +142,7 @@
 
           <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between text-xs">
             <div>
-              <span class="text-slate-400 block">Est. Wait (inc. queue):</span>
+              <span class="text-slate-400 block">Est. Wait Time (inc. queue):</span>
               <span id="liveWaitPreview" class="font-bold text-amber-400 text-sm mono">~3 mins</span>
             </div>
             <div class="text-right">
@@ -193,17 +153,17 @@
 
           <button type="submit"
             class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/30 transition">
-            🖨️ Submit Print Job & Generate Token
+            🖨️ Submit Print Job & Get Token
           </button>
         </form>
       </div>
 
-      <!-- 3. Generated Token Receipt Card -->
+      <!-- 2. Generated Customer Token Receipt Card -->
       <div class="bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-900 border-2 border-indigo-500/60 rounded-2xl p-5 shadow-xl">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
           <div>
             <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
-              ✓ Active Token Receipt
+              ✓ Your Print Token Receipt
             </span>
             <h3 id="receiptDocName" class="font-bold text-base text-white mt-1">OS_MiniProject_Report.pdf</h3>
             <p id="receiptStudent" class="text-xs text-slate-400">Karthik Rao (NIE-CS-088)</p>
@@ -221,7 +181,7 @@
           </div>
           <div>
             <span class="text-[10px] text-slate-400 block uppercase">Est. Pickup</span>
-            <span id="receiptPickup" class="mono font-bold text-sm text-white">7:05 PM</span>
+            <span id="receiptPickup" class="mono font-bold text-sm text-white">7:15 PM</span>
           </div>
           <div>
             <span class="text-[10px] text-slate-400 block uppercase">Status</span>
@@ -230,38 +190,60 @@
         </div>
 
         <p id="receiptFormulaBreakdown" class="text-[11px] text-slate-300 mono bg-slate-950/70 px-3 py-2 rounded-lg border border-slate-800/70">
-          Math: Backlog ahead + Job print time
+          Wait Breakdown: Queue backlog ahead + Job print time
         </p>
       </div>
     </section>
 
-    <!-- RIGHT COLUMN: SHOP OPERATOR LIVE QUEUE (7 Cols) -->
+    <!-- RIGHT COLUMN: SHOP OPERATOR LIVE QUEUE & SETTINGS (7 Cols) -->
     <section id="shopSection" class="lg:col-span-7 flex flex-col gap-4">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex-1 flex flex-col">
         
-        <!-- Header & Filter -->
+        <!-- Shop Queue Header & Controls -->
         <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div>
-            <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Step 02 & 03 • Shop Operator View</span>
-            <h2 class="text-lg font-bold text-white">Live Rush-Hour Print Queue</h2>
+            <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Shop Operator View</span>
+            <h2 class="text-lg font-bold text-white">Live Print Shop Queue</h2>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
-            <span class="text-xs bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-slate-300">
+            <button id="rushHourBtn" onclick="toggleRushHour()" class="px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-amber-500/20 border-amber-500/50 text-amber-300">
+              🔥 Rush-Hour: ON (1.25x)
+            </button>
+            <span class="text-xs bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl text-slate-300">
               Urgent Slot: <strong id="urgentSlotBadge" class="mono text-amber-400">0 / 1</strong>
             </span>
-            <select id="filterStatus" onchange="renderQueue()" class="bg-slate-950 border border-slate-800 text-xs rounded-xl px-3 py-2 text-slate-200">
+            <select id="filterStatus" onchange="renderQueue()" class="bg-slate-950 border border-slate-800 text-xs rounded-xl px-3 py-1.5 text-slate-200">
               <option value="ALL">All Jobs</option>
-              <option value="ACTIVE">Active Only (Printing + Queued)</option>
+              <option value="ACTIVE">Active (Printing + Queued)</option>
               <option value="READY">Ready for Pickup</option>
               <option value="COMPLETED">Completed</option>
             </select>
           </div>
         </div>
 
+        <!-- Shop-Only Visible Estimation Assumptions Bar (Hidden from Customer View!) -->
+        <div class="mt-3 bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="text-slate-300">
+            <strong class="text-amber-400">⚙️ Shop Wait-Time Assumptions:</strong>
+            <span class="text-slate-400 ml-1">(Backlog + Pages × Speed + Setup) × Rush</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 mono">
+            <label class="flex items-center gap-1 text-slate-400">
+              B&W: <input id="assumpBW" type="number" value="4" min="1" max="30" onchange="recalculateAll()" class="w-11 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center text-white font-bold">s/p
+            </label>
+            <label class="flex items-center gap-1 text-slate-400">
+              Colour: <input id="assumpColor" type="number" value="10" min="2" max="60" onchange="recalculateAll()" class="w-11 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center text-indigo-300 font-bold">s/p
+            </label>
+            <label class="flex items-center gap-1 text-slate-400">
+              Setup: <input id="assumpSetup" type="number" value="15" min="5" max="120" onchange="recalculateAll()" class="w-11 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-center text-emerald-300 font-bold">s
+            </label>
+          </div>
+        </div>
+
         <!-- Twist Policy Banner -->
-        <div class="mt-3 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3.5 py-2.5 text-xs text-amber-200">
-          <span id="urgentBannerText">⚡ <strong>Twist Rule:</strong> Shop can mark <strong>only 1 active job urgent</strong> at a time after confirming delay impacts on other queued jobs.</span>
+        <div class="mt-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-200">
+          <span id="urgentBannerText">⚡ <strong>Urgent Override Rule:</strong> Shop can mark <strong>only 1 active job urgent</strong> at a time after confirming delay impacts on other queued jobs.</span>
         </div>
 
         <!-- Queue Cards Container -->
@@ -269,7 +251,7 @@
       </div>
     </section>
 
-    <!-- 6 DOC CARDS TAB (Clean 6-Card Grid + 5-Test Buttons) -->
+    <!-- 6 DOC CARDS TAB -->
     <section id="docsSection" class="hidden lg:col-span-12 space-y-5">
       <div class="bg-slate-900 border border-indigo-500/40 rounded-2xl p-5">
         <h3 class="text-sm font-bold text-indigo-300 uppercase tracking-wider mb-3">🧪 DOC-03 Interactive 5-Test Checklist Runner (Click to Test Live)</h3>
@@ -300,7 +282,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
           <span class="text-xs font-bold text-amber-400">DOC-01 • README & QUICKSTART</span>
-          <p class="text-xs text-slate-300 mt-2 leading-relaxed">Browser-first campus print queue prototype. Zero `.env` or external APIs. Left panel submits jobs & generates tokens; Right panel manages queue order, status, and single-urgent override.</p>
+          <p class="text-xs text-slate-300 mt-2 leading-relaxed">Browser-first campus print queue prototype. Zero `.env` or external APIs. Customer view submits jobs & generates tokens; Shop view manages queue order, status, speed assumptions, and single-urgent override.</p>
         </div>
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
           <span class="text-xs font-bold text-purple-400">DOC-02 • JUDGE RUNBOOK (60s)</span>
@@ -312,7 +294,7 @@
         </div>
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
           <span class="text-xs font-bold text-amber-400">DOC-04 • USER QUICKSTART</span>
-          <p class="text-xs text-slate-300 mt-2 leading-relaxed">Enter Name, Document, Pages, Copies, Job Type & Colour → Submit for Token. Recover from mistakes anytime via `Release Slot` or `↺ Reset Demo`.</p>
+          <p class="text-xs text-slate-300 mt-2 leading-relaxed">Enter Name, Document, Pages, Copies, Finishing & Colour → Submit for Token. Recover from mistakes anytime via `Release` or `↺ Reset Demo`.</p>
         </div>
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
           <span class="text-xs font-bold text-purple-400">DOC-05 • DATA & PRIVACY NOTE</span>
@@ -376,7 +358,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'PRINTQ_CLEAN_FINAL_V5';
+    const STORAGE_KEY = 'PRINTQ_CLEAN_FINAL_V6';
     let selectedUrgentJobId = null;
     let lastHighlightedJobId = 'job-3';
     let isRushHour = true;
@@ -389,7 +371,6 @@
       THESIS:   { label: 'Hardbound Report', extraSec: 45, extraCost: 60 }
     };
 
-    // Short, realistic print times so you can watch jobs finish to Ready live!
     const DEFAULT_JOBS = [
       { id: 'job-1', token: '#PQ-101', student: 'Aditya Nair (NIE-ISE-014)', docName: 'DBMS_Schema_Diagram.pdf', pages: 4, copies: 1, color: 'COLOUR', jobType: 'STANDARD', status: 'Printing', urgent: false, delayedBySec: 0, remainingSec: 20 },
       { id: 'job-2', token: '#PQ-102', student: 'Sneha Kulkarni (NIE-CS-061)', docName: 'ADA_Graph_Theory_Notes.pdf', pages: 10, copies: 1, color: 'BW', jobType: 'DUPLEX', status: 'Queued', urgent: false, delayedBySec: 0, remainingSec: null },
@@ -409,7 +390,6 @@
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          // If all jobs accidentally finished in a previous session, auto-reset so demo is fresh
           if (parsed.some(j => j.status === 'Printing' || j.status === 'Queued')) return parsed;
         } catch (e) {}
       }
@@ -436,7 +416,7 @@
         shop.className = 'lg:col-span-7 flex flex-col gap-4';
         tSplit.className = 'px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition';
       } else if (mode === 'CUSTOMER') {
-        cust.className = 'lg:col-span-12 max-w-2xl mx-auto w-full flex flex-col gap-5';
+        cust.className = 'lg:col-span-12 max-w-xl mx-auto w-full flex flex-col gap-5';
         shop.className = 'hidden';
         tCust.className = 'px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition';
       } else if (mode === 'SHOP') {
@@ -469,21 +449,19 @@
       const dot = document.getElementById('simDot');
       if (liveSimEnabled) {
         btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-emerald-500/15 border-emerald-500/40 text-emerald-300';
-        txt.textContent = 'Auto-Print Timer: ON';
+        txt.textContent = 'Live Printer: ON';
         dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
       } else {
         btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-slate-800 border-slate-700 text-slate-400';
-        txt.textContent = 'Auto-Print Timer: PAUSED';
+        txt.textContent = 'Live Printer: PAUSED';
         dot.className = 'w-2 h-2 rounded-full bg-slate-500';
       }
     }
 
-    // Real-time countdown: ticks down Printing job to 0s -> transitions to Ready -> starts next Queued job!
     setInterval(() => {
       if (!liveSimEnabled) return;
       let printingJob = jobs.find(j => j.status === 'Printing');
 
-      // If no job is currently Printing, automatically promote the first Queued job to Printing
       if (!printingJob) {
         const nextQueued = jobs.find(j => j.status === 'Queued');
         if (nextQueued) {
@@ -503,12 +481,11 @@
 
       printingJob.remainingSec -= 1;
 
-      // When timer hits 0s, mark it Ready and start the next Queued job!
       if (printingJob.remainingSec <= 0) {
         printingJob.remainingSec = 0;
         printingJob.status = 'Ready';
         printingJob.urgent = false;
-        showToast(`✅ ${printingJob.token} finished printing and is now READY FOR PICKUP!`);
+        showToast(`✅ ${printingJob.token} finished printing and is now READY!`);
 
         const nextInLine = jobs.find(j => j.status === 'Queued');
         if (nextInLine) {
@@ -525,15 +502,12 @@
     function toggleRushHour() {
       isRushHour = !isRushHour;
       const btn = document.getElementById('rushHourBtn');
-      const badge = document.getElementById('rushMultiplierBadge');
       if (isRushHour) {
         btn.className = 'px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-amber-500/20 border-amber-500/50 text-amber-300';
         btn.textContent = '🔥 Rush-Hour: ON (1.25x)';
-        badge.textContent = 'Rush 1.25x';
       } else {
         btn.className = 'px-3 py-1.5 rounded-xl border text-xs font-bold transition bg-slate-800 border-slate-700 text-slate-300';
         btn.textContent = '⚡ Normal Hours (1.0x)';
-        badge.textContent = 'Normal 1.0x';
       }
       recalculateAll();
     }
@@ -688,7 +662,7 @@
 
       const delayNote = target.delayedBySec > 0 ? ` [Includes +${formatDuration(target.delayedBySec)} urgent delay]` : '';
       document.getElementById('receiptFormulaBreakdown').textContent =
-        `Math: ${formatDuration(target.backlogAheadSec)} backlog ahead + ${formatDuration(target.ownDurationSec)} job print time${delayNote}`;
+        `Estimate Breakdown: ${formatDuration(target.backlogAheadSec)} queue ahead + ${formatDuration(target.ownDurationSec)} print time${delayNote}`;
     }
 
     function changeJobStatus(jobId, newStatus) {
@@ -897,7 +871,7 @@
                       <div class="w-48 bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
                         <div class="bg-emerald-400 h-full transition-all duration-300" style="width: ${job.progressPct}%"></div>
                       </div>
-                      <span class="text-[10px] mono text-emerald-400 font-semibold">${job.progressPct}% • Auto-completes to Ready at 0s</span>
+                      <span class="text-[10px] mono text-emerald-400 font-semibold">${job.progressPct}% Printed</span>
                     </div>
                   ` : ''}
                 </div>
